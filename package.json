@@ -1,0 +1,11 @@
+{
+  "name": "chicago-energy-visualization-2010",
+  "version": "1.0.0",
+  "description": "Energy and Gas consumption visualization",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Juan Trelles",
+  "license": "ISC"
+}

@@ -1,14 +1,18 @@
 // mongoimport --type csv --db chicago_energy_2010 --collection blocks --file "D:\UIC Drive\2016 - Fall\Energy_Usage_2010.csv --headerline"
+const async = require('async');
 
 const {MongoClient, ObjectID} = require ('mongodb');
 const { community_area_numbers } = require('./community_area_numbers');
+const { Big } = require('big.js');
 
 MongoClient.connect('mongodb://localhost:27017/chicago_energy_2010', (err, db) => {
 	if (err) {
 		return console.log('Unable to connect to MongoDB server.');
 	}
 	console.log('Connected to MongoDB Energy server');
-	addCommunityAreaNumbers(db);
+	getMaxValues(db, "tracts");
+	//addTest(db);
+	//addCommunityAreaNumbers(db);
 });
 
 function preprocessData(db){
@@ -19,6 +23,8 @@ function preprocessData(db){
 	createCensusTracts(db);
 };
 
+
+//TODO: update all the data set, blank blocks are just aggregated data due to confidentiality.
 function createCommunityAreas(db){
 	//return new Promise(function(resolve, reject) 
 	db.collection('blocks').find({CENSUS_BLOCK: ''}).toArray().then((community_areas) => {
@@ -67,6 +73,7 @@ function splitCensusBlockCode(db, filter){
 				block.STATE_FIPS = block.CENSUS_BLOCK.substring(0,2);
 				block.COUNTY_FIPS = block.CENSUS_BLOCK.substring(2,5);
 				block.TRACT = block.CENSUS_BLOCK.substring(5,11);
+				block.BLOCK = block.CENSUS_BLOCK.substring(11,15);
 			}
 			db.collection('blocks').save(block);	
 		});
@@ -184,3 +191,136 @@ function addCommunityAreaNumbers(db){
 		console.log("Finished updating community area numbers");
 	});
 };
+
+function addEnergyPropertiesToGeoCommunities(db){
+	db.collection('geo_areas').find({}).toArray().then((geo_areas) => {
+		geo_areas.forEach((geo_area) => {
+			var community_number = parseInt(geo_area.properties.area_num_1);
+			db.collection('community_areas').findOne({"COMMUNITY_AREA_NUMBER": community_number }).then((area) => {
+				console.log(community_number + " " + area.TOTAL_THERMS + " - " + area.TOTAL_KWH);
+				geo_area.properties["TOTAL_KWH"] = area.TOTAL_KWH;
+				geo_area.properties["TOTAL_THERMS"] = area.TOTAL_THERMS;
+				db.collection('geo_areas').save(geo_area);
+			});
+		});
+	}, (e) => {
+		console.log("Error obtaining the geocommunities", e);
+	});
+}
+
+function addEnergyPropertiesToGeoTracts(db){
+	db.collection('geo_tracts').find({}).toArray().then((geo_tracts) => {
+		geo_tracts.forEach((geo_tract) => {
+			var tractce10 = geo_tract.properties.tractce10.toString();
+			db.collection('tracts').findOne({"TRACT": tractce10}).then((tract) => {
+				if (tract == null){
+					geo_tract.properties["TOTAL_KWH"] = -1;
+					geo_tract.properties["TOTAL_THERMS"] = -1;
+				} else {
+					console.log(tractce10 + " " + tract.TOTAL_THERMS + " " + tract.TOTAL_KWH);
+					geo_tract.properties["TOTAL_KWH"] = tract.TOTAL_KWH;
+					geo_tract.properties["TOTAL_THERMS"] = tract.TOTAL_THERMS;
+				}
+				db.collection('geo_tracts').save(geo_tract);
+			});
+		});
+	});
+}
+
+function addEnergyPropertiesToGeoBlocks(db){
+
+	var cursorGeoBlocks = db.collection('geo_blocks').find({});
+	cursorGeoBlocks.each((err, geo_block) => {
+		var geoid = geo_block.properties.geoid10;
+		var total_kwh = 0;
+		var total_therms = 0;
+
+		var cursorRelatedBlocks = db.collection('blocks').find({"CENSUS_BLOCK": geoid});
+		cursorRelatedBlocks.each((err2, blocks) => {
+			if (blocks && blocks.length > 0){
+				for(var i = 0; i < blocks.length; i++){
+					total_kwh += blocks[j].TOTAL_KWH;
+					total_therms += blocks[j].TOTAL_THERMS;
+				}
+				geo_blocks[i].properties["TOTAL_KWH"] = total_kwh;
+				geo_blocks[i].properties["TOTAL_THERMS"] = total_therms;
+				db.collection('geo_blocks').save(geo_blocks[i]);
+			}
+		});
+	});
+}
+
+
+function addTest(db){
+
+	var qGeoBlocks = async.queue((geoblock, callback) => {
+		var geoid = geoblock.properties.geoid10;
+
+		var cursorRelatedBlocks = db.collection('blocks').find({"CENSUS_BLOCK": geoid});
+		cursorRelatedBlocks.each((err, block) => {
+			if (block) qBlocks.push({"block": block, "geoblock": geoblock});
+		});
+	}, Infinity);
+
+	qGeoBlocks.drain = () => {
+		console.log("Finished updating values");
+	};
+
+	var qBlocks = async.queue((doc, callback2) => {
+			doc.geoblock.properties["TOTAL_KWH"] += doc.block.TOTAL_KWH;
+			doc.geoblock.properties["TOTAL_THERMS"] += doc.block.TOTAL_THERMS;
+	}, Infinity);
+
+	qBlocks.drain = () => {
+		db.collection('geo_blocks').save(doc.geoblock, callback2);
+	}
+
+	var cursorGeoBlocks = db.collection('geo_blocks').find({});
+	cursorGeoBlocks.each((err, geo_block) => {
+		if (geo_block){
+			geo_block.properties["TOTAL_KWH"] = 0;
+			geo_block.properties["TOTAL_THERMS"] = 0;
+			qGeoBlocks.push(geo_block);	
+		} 
+	});
+}	
+
+
+function getMaxValues(db, collection_name){
+	var min = 7035940,
+		max = 0,
+		sum = 0;
+
+	console.log("min " + min);
+	db.collection(collection_name).find({}).toArray().then((elems) => {
+		for (var i = 0; i < elems.length; i++){
+			if (elems[i].TOTAL_KWH === undefined){
+				elems[i].TOTAL_KWH = -1;
+			}
+			if (elems[i].TOTAL_KWH > max) max = elems[i].TOTAL_KWH;
+			if (elems[i].TOTAL_KWH != -1 &&
+			    elems[i].TOTAL_KWH < min) min = elems[i].TOTAL_KWH;
+			sum = sum + elems[i].TOTAL_KWH;
+		}
+
+		console.log("max:" + max);
+		console.log("min:" + min);
+		console.log("avg:" + sum / elems.length);
+	});
+}
+
+
+// {
+// 	"community_areas": {
+// 		"max": 1,
+// 		"min": 1
+// 	},
+// 	"tracts": {
+// 		"max": 1,
+// 		"min": 1
+// 	},
+// 	"blocks": {
+// 		"max": 1,
+// 		"min": 1
+// 	}
+// }

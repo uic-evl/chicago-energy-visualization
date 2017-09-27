@@ -1,0 +1,61 @@
+<div class="row" data-bind="visible: show_title">
+    <div class="col-md-12">
+        <span class="title">Chicago</span>
+    </div>
+</div>
+<div class="row" data-bind="visible: show_title">
+    <div class="col-md-12">    
+        <span class="title subtitle">Electricity & Gas Consumption in 2010</span>   
+    </div>
+</div>
+<br/>   
+
+<div class="row">   
+    <div class="col-md-4">   
+        <div><span class="toogles_label">data</span></div>   
+        <div class="btn-group" data-toggle="buttons" style="width: 100%">   
+            <label class="btn btn-primary active btn-sm btn_toogle" 
+                data-bind="attr:{id: button_show_electricity}, click:showElectricity">   
+                <input type="radio" name="map_display" data-bind="attr:{ id: rb_show_electricity }" autocomplete="off" checked><span>Electricity</span>   
+            </label>   
+            <label class="btn btn-primary btn-sm btn_toogle" style="width: 50%" 
+                data-bind="attr:{id: button_show_gas},click:showGas">   
+                <input type="radio" name="map_display" data-bind="attr:{ id: rb_show_gas }" autocomplete="off"><span>Gas</span>   
+            </label>   
+        </div>   
+     </div>   
+     <div class="col-md-5">   
+        <div><span class="toogles_label">details view</span></div>  
+        <div class="btn-group  " data-toggle="buttons">   
+            <label class="btn btn-primary active btn-sm btn_toogle" 
+                data-bind="attr:{id: button_show_communities}, click:showCommunityAreas">   
+                <input type="radio" name="map_display" data-bind="attr:{ id: rb_show_communities }" autocomplete="off" checked><span>Community Areas</span>   
+            </label>   
+            <label class="btn btn-primary btn-sm btn_toogle" 
+                data-bind="attr:{id: button_show_tracts}, click:showCensusTracts">   
+                <input type="radio" name="map_display" data-bind="attr:{ id: rb_show_tracts }" autocomplete="off"><span>Census Tracts</span>   
+            </label>   
+        </div>   
+     </div>   
+     <div class="col-md-3">   
+        <div><span class="toogles_label">scale</span></div>  
+        <div class="btn-group  " data-toggle="buttons">   
+            <label class="btn btn-primary btn-sm btn_toogle active" 
+                data-bind="attr:{id: button_show_real}, click:showRealValues">   
+                <input type="radio" name="map_display" data-bind="attr:{ id: rb_show_real }" autocomplete="off"><span>Real</span>   
+            </label>   
+            <label class="btn btn-primary btn-sm btn_toogle" 
+                data-bind="attr:{id:button_show_log}, click:showLogValues">   
+                <input type="radio" name="map_dispay" data-bind="attr:{ id: rb_show_log }" autocomplete="off" checked><span>Log</span>   
+            </label>   
+        </div>   
+     </div>   
+ </div>
+ <br/> 
+
+<div class="row">
+    <div class="col-md-12">
+        <span class="toogles_label" data-bind="text:legend_text"></span>
+    </div>
+    <div class="col-md-12" data-bind="attr:{id:legend_container_id}"></div>
+</div>

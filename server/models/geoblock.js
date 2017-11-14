@@ -11,6 +11,12 @@ var schema = new mongoose.Schema({
     },
     name10: {
       type: String
+    },
+    TOTAL_THERMS: {
+      type: Number
+    },
+    TOTAL_KWH: {
+      type: Number
     }
   },
   geometry: mongoose.Schema.Types.Geometry

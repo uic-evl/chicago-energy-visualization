@@ -13,21 +13,123 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 	<script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
 
+	<link rel="stylesheet" href="./css/font-awesome-4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" href="./css/main.css">
-    <script src="./js/map.js"></script>
 </head>
 <body>
 	<div class="container-fluid">
+		<div class="row page_header" id="page_header">
+		    <div class="col-md-12">
+		        <span class="title">Chicago</span> <span class="title subtitle">Electricity & Gas Consumption in 2010</span>  
+		    </div>
+		</div>
 		<div class="row">
-			<div id="map_overview_detail" class="col-md-12"></div>
-			<input type="button" value="Clean" onclick="map.clear();"></div>
+			<div class="col-md-3 panel-left">
+				<div class="row">
+					<div id="panel-left" class="col-md-12 panel-header">
+						Selected Area Information
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 area_details_separator"></div>
+					<div class="col-md-6">
+						<div id="area_details" class="area_details_container col-md-12"></div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-12 panel-subheader"><span>Monthly Consumption</span></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="row">
+					       <div class="col-md-12 line-chart-header">Electricity (WH)</div> 
+					       <div class="col-md-12" style="height: 150px"> 
+					           <div id="selected-linechart-electricity"></div> 
+					       </div>							
+						</div> 
+					</div>				
+					<div class="col-md-6">
+						<div class="row">
+				        	<div class="col-md-12 line-chart-header">Gas (Therms)</div> 
+				        	<div class="col-md-12"  style="height: 150px;"> 
+				           		<div id="selected-linechart-gas"></div> 
+				        	</div> 							
+						</div>						
+					</div>	
+				</div>
+
+				<div class="row">
+					<div class="col-md-12 panel-subheader">Monthly Ranking</div> 
+					<div class="col-md-12" id="nomogram_ranking"></div>					
+				</div>
+
+				<div class="row">
+					<!-- 
+				    <div class="col-md-12"> 
+				    	<input type="button" id="btnAddComparison" value="Add to Comparison" /> 
+				    </div>--> 
+				    <div class="col-md-12" id="mini_map" style="height: 300px">
+				    </div>
+				</div>
+			</div>
+			<div class="col-md-5">
+				<div id="map-header" class="row panel-header">
+					<div class="col-md-4">
+						Energy Consumption Map
+					</div>
+					<div id="map_filters" class="pull-right map-filters">
+						Show 
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-energy">electricity<span class="caret"></span>
+			    			</button>
+							<ul class="dropdown-menu dd-energy">
+								<li><a href="#">electricity</a></li>
+				    			<li><a href="#">gas</a></li>
+							</ul>
+						</div>
+						consumption for 
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-area">community areas<span class="caret"></span>
+			    			</button>
+							<ul class="dropdown-menu dd-area">
+								<li><a href="#">community areas</a></li>
+				    			<li><a href="#">census tracts</a></li>
+							</ul>
+						</div>			
+						in 
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scale">real<span class="caret"></span>
+			    			</button>
+							<ul class="dropdown-menu dd-scale">
+								<li><a href="#">real</a></li>
+				    			<li><a href="#">logarithmic</a></li>
+							</ul>
+						</div>
+						scale
+					</div>
+				</div>
+				<div class="row"><div id="map_overview_detail"></div></div>
+			</div>
+			<div class="col-md-3 panel-right">
+				<div class="row">
+					<div id="panel-right" class="col-md-12 panel-header">
+						Comparison
+					</div>
+				</div>
+				<div class="row">
+					<div id="scatterplot" class="col-md-12" style="height: 200px"></div>
+				</div>
+			</div>
 		</div>
 	</div>
-	<script>
-		var App = App || {};
-		var height = $( window ).height();
-		$("#map_overview_detail").height(height);
-		var map = new EnergyMap("map_overview_detail");
-		map.init();
-	</script>
+
+	<script type="text/javascript" src="./js/model/model.js"></script>
+	<script type="text/javascript" src="./js/scatterplot.js"></script>
+	<script type="text/javascript" src="./js/lib/nanogram/d3.nomogram.js"></script>
+	<script type="text/javascript" src="./js/nomogramPanel.js"></script>
+	<script type="text/javascript" src="./js/linechart.js"></script>
+	<script type="text/javascript" src="./js/areaDetails.js"></script>
+	<script type="text/javascript" src="./js/map.js"></script>
+	<script type="text/javascript" src="./js/App.js"></script>
 </body>

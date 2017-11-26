@@ -113,12 +113,60 @@
 			</div>
 			<div class="col-md-3 panel-right">
 				<div class="row">
-					<div id="panel-right" class="col-md-12 panel-header">
-						Comparison
+					<div class="pull-right col-md-12 map-filters panel-header">
+						Show
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-x">total KWH
+			    			</button>
+							<ul class="dropdown-menu dd-scatterplot-x">
+								<li><a href="#">total KWH</a></li>
+				    			<li><a href="#">total Therms</a></li>
+				    			<li><a href="#">KWH SQFT</a></li>
+				    			<li><a href="#">Thm SQFT</a></li>
+				    			<li><a href="#">Ranking Electricity</a></li>
+				    			<li><a href="#">Ranking Gas</a></li>
+							</ul>
+						</div>
+						vs
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-y">total Therms
+			    			</button>
+							<ul class="dropdown-menu dd-scatterplot-y">
+								<li><a href="#">total KWH</a></li>
+				    			<li><a href="#">total Therms</a></li>
+				    			<li><a href="#">KWH SQFT</a></li>
+				    			<li><a href="#">Thm SQFT</a></li>
+				    			<li><a href="#">Ranking Electricity</a></li>
+				    			<li><a href="#">Ranking Gas</a></li>
+							</ul>
+						</div>
+						with
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-r">population
+			    			</button>
+							<ul class="dropdown-menu dd-scatterplot-r">
+								<li><a href="#">population</a></li>
+				    			<li><a href="#">total units</a></li>
+				    			<li><a href="#">occupied units</a></li>
+				    			<li><a href="#">percentage occupied units</a></li>
+				    			<li><a href="#">occupied housing units</a></li>
+				    			<li><a href="#">renter occupied housing units</a></li>
+							</ul>
+						</div>
+						in 
+						<div class="btn-group">
+							<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-scale">log
+			    			</button>
+							<ul class="dropdown-menu dd-scatterplot-scale">
+								<li><a href="#">real</a></li>
+				    			<li><a href="#">log</a></li>
+							</ul>
+						</div>
+						scale
 					</div>
 				</div>
 				<div class="row">
-					<div id="scatterplot" class="col-md-12" style="height: 200px"></div>
+					<div id="scatterplot" class="col-md-12" style="height: 400px"></div>
 				</div>
 			</div>
 		</div>

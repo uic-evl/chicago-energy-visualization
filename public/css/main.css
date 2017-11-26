@@ -12,7 +12,7 @@
 
 .mini-map-container{
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    height: 350px;
+    height: 500px;
     width: 350px;
 }
 
@@ -167,4 +167,20 @@ path {
     font-size: 12px;
     font-family: Arial;
     padding-right: 5px;
+}
+
+.dot{
+    fill: white;
+    fill-opacity: .8;
+}
+
+.dot_selected {
+    fill-opacity: .9;
+    stroke-width:3px;
+    stroke:black;
+    stroke-dasharray: 5;
+}
+
+.dropdown-menu{
+    z-index: 5000;
 }

@@ -1,0 +1,62 @@
+/* Move down content because we have a fixed navbar that is 3.5rem tall */
+body {
+  padding-top: 5.1rem;
+}
+
+.content-right {
+
+}
+
+.content-header {
+	font-family:  'Hoefler Text', Georgia, 'Times New Roman', serif;
+    background: rgb(179, 221, 242);
+    font-weight: bolder;
+    vertical-align: bottom;
+}
+
+.mini-map-container{
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+.content-details {
+	background-color: #DCDCDC;
+}
+
+
+@media screen and (min-width: 1900px) {
+    .content-header {
+    	font-size: 14px;
+    }
+
+    .map-area {
+    	height: 980px;
+    }
+
+    .mini-map-container {
+    	height: 500px;
+    	width: 350px;
+    }
+
+    .content-details {
+    	height: 980px;
+    }
+}
+
+@media screen and (min-width: 3830px) {
+    .content-header {
+    	font-size: 30px;
+    }
+
+    .map-area {
+    	height: 2000px;
+    }
+
+    .mini-map-container {
+    	height: 700px;
+    	width: 400px;
+    }
+
+    .content-details {
+    	height: 2000px;
+    }
+}

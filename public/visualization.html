@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Jumbotron Template for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="./js/lib/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.1/leaflet.css" />
+
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="./css/visualization.css">
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Chicago Energy Consumption</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="row">
+            <div class="col-md-12 content-header">
+              <span>Map Explorer</span>
+              <div id="map_filters" class="pull-right map-filters">
+                Show 
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-energy">electricity
+                    </button>
+                  <ul class="dropdown-menu dd-energy">
+                    <li><a href="#">electricity</a></li>
+                      <li><a href="#">gas</a></li>
+                  </ul>
+                </div>
+                consumption for 
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-area">census tracts
+                    </button>
+                  <ul class="dropdown-menu dd-area">
+                    <li><a href="#">census tracts</a></li>
+                      <li><a href="#">census blocks</a></li>
+                  </ul>
+                </div>      
+                in 
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scale">real
+                    </button>
+                  <ul class="dropdown-menu dd-scale">
+                    <li><a href="#">real</a></li>
+                      <li><a href="#">logarithmic</a></li>
+                  </ul>
+                </div>
+                scale
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div id="map_overview_detail" class="col-md-9 map-area"></div>
+            <div class="col-md-3 content-details"></div>
+          </div>
+        </div>
+        <div class="col-md-4" style="background-color: red;height: 500px">
+          <div class="row content-header" style="height: 50px">
+          </div>
+          <div class="row header-row" style="height: 250px">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--
+    <div class="container">
+    <hr>
+      <footer>
+        <p>&copy; 2017 Electronic Visualization Laboratory (EVL) at University of Illinois at Chicago.</p>
+      </footer>
+    </div> <!-- /container
+    -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="./js/lib/jquery-3.2.1.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script type="text/javascript" src="./js/lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.1/leaflet.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+
+    <script type="text/javascript" src="./js/model/model.js"></script>
+    <script type="text/javascript" src="./js/map.js"></script>
+    <script type="text/javascript" src="./js/Application.js"></script>
+  </body>
+</html>

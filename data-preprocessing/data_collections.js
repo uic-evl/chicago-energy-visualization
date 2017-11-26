@@ -18,11 +18,14 @@ MongoClient.connect('mongodb://localhost:27017/chicago_energy_2010', (err, db) =
 	//addEnergyPropertiesToGeoTracts(db);
 	//convertCensusCodeToString(db);
 	//addEnergyPropertiesToGeoBlocks(db);
-	addEnergyPropertiesToGeoTracts(db);
+	addEnergyPropertiesToGeoCommunities(db);
+	//addEnergyPropertiesToGeoTracts(db);
 	//nullEnergyPropertiesToGeoBlocks(db);
 });
 
 function preprocessData(db){
+
+	addEnergyPropertiesToGeoCommunities(db);
 	createCommunityAreas(db);		// Get data as it is, 
 	convertCensusCodeToString(db);
 	splitCensusBlockCode(db);
@@ -358,6 +361,13 @@ function addEnergyPropertiesToGeoCommunities(db){
 				console.log(community_number + " " + area.TOTAL_THERMS + " - " + area.TOTAL_KWH);
 				geo_area.properties["TOTAL_KWH"] = area.TOTAL_KWH;
 				geo_area.properties["TOTAL_THERMS"] = area.TOTAL_THERMS;
+				geo_area.properties["POPULATION"] = area.TOTAL_POPULATION;
+				geo_area.properties["TOTAL_UNITS"] = area.TOTAL_UNITS;
+				geo_area.properties["OCCUPIED_UNITS"] = area.OCCUPIED_UNITS;
+				geo_area.properties["OCCUPIED_HOUSING_UNITS"] = area.OCCUPIED_HOUSING_UNITS;
+				geo_area.properties["RENTER_OCCUPIED_HOUSING_UNITS"] = area.RENTER_OCCUPIED_HOUSING_UNITS;
+				geo_area.properties["KWH_TOTAL_SQFT"] = area.KWH_TOTAL_SQFT;
+				geo_area.properties["THERMS_TOTAL_SQFT"] = area.THERMS_TOTAL_SQFT;
 				db.collection('geo_areas').save(geo_area);
 			});
 		});

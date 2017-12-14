@@ -10,6 +10,9 @@ function Model() {
 
 	this.serverPort = "localhost:3000";
 	this.protocol = "http://";
+
+	this.hist_community_electricity = null;
+	this.hist_community_gas = null;
 }
 
 Model.prototype = {
@@ -26,7 +29,7 @@ Model.prototype = {
 			if (id) url = url + "/" + id;
 		}		
 		else if (type == CENSUS_BLOCKS)
-			url = url + "/census_blocks";
+			url = url + "/geoblocksByCommunity/" + id;
 		return url;
 
 	},
@@ -42,10 +45,55 @@ Model.prototype = {
 					this.selected_area = results;
 				else
 					this.geo_census_tracts = results;
-			} else if (type == CENSUS_BLOCKS)
-				this.selected_area = results.data;
+			} else if (type == CENSUS_BLOCKS) {
+				/*
+				let hasBlocks = self.hasBlocks(id);
+				if (hasBlocks == null) console.log("Wrong community id " + id);
+				else {
+					if (!hasBlocks) {
+
+					}
+				}*/
+				this.setBlocks(id, results);
+				this.selected_area = results;
+			}
+
+			this.getHistogramData(type);
 			console.log("geospatial data loaded from model");
 		});
+	},
+
+	getHistogramData: function(type) {
+
+		if (type == COMMUNITY_AREAS && (this.hist_community_electricity == null && this.hist_community_gas == null)) {
+			this.hist_community_electricity = [];
+			this.hist_community_gas = [];
+			for (let i = 0; i < this.geo_community_areas.data.length; i++) {
+				this.hist_community_electricity.push(this.geo_community_areas.data[i].properties.TOTAL_KWH);
+				this.hist_community_gas.push(this.geo_community_areas.data[i].properties.TOTAL_THERMS);
+			}
+		} // TODO for blocks and tracts
+
+	},
+
+	hasBlocks: function(community_id) {
+		let self = this;
+		for (let i = 0; i < self.geo_community_areas.data.length; i++) {
+			if (self.geo_community_areas.data[i].area_num_1 == community_id)
+				if (self.geo_community_areas.data[i].geo_blocks == null)
+					return false;
+				else return true;
+		}
+		return null;
+	},
+
+	setBlocks: function(community_id, results) {
+		for (let i = 0; i < this.geo_community_areas.data.length; i++) {
+			if (this.geo_community_areas.data[i].area_num_1 == community_id){
+				this.geo_community_areas.data[i].geo_blocks = results;
+				return;
+			}
+		}
 	}
 
 }

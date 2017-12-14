@@ -17,11 +17,14 @@ var schema = new mongoose.Schema({
     },
     TOTAL_KWH: {
       type: Number
+    },
+    ANONYMOUS: {
+      type: Boolean
     }
   },
   geometry: mongoose.Schema.Types.Geometry
 });
 
-var GeoBlock = mongoose.model('geo_blocks', schema);
+var GeoBlock = mongoose.model('geo_blocks_4', schema);
 
 module.exports = {GeoBlock};

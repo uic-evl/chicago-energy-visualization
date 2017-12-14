@@ -9,15 +9,20 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Jumbotron Template for Bootstrap</title>
+    <title>Energy Consumption Chicago 2010</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="./js/lib/bootstrap-3.3.7-dist/css/bootstrap.min.css"/>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.1/leaflet.css" />
-
     <!-- Custom styles for this template -->
     <link rel="stylesheet" href="./css/visualization.css">
+
+    <style>
+      body {
+        padding-top: 5.1rem;
+      }
+    </style>
 
   </head>
 
@@ -76,15 +81,135 @@
             </div>
           </div>
           <div class="row">
+
+            <div class="col-md-3 content-details">
+              <div class="row">
+                <div class="col-md-12">
+                  <div id="area_details" class="area_details_container"></div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 chart-header" ><span>Monthly Consumption</span></div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 details-graph-container">
+                  <div id="selected-linechart-electricity"></div> 
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 details-graph-container">
+                  <div id="selected-linechart-gas"></div> 
+                </div>
+              </div>    
+
+              <div class="row">
+                <div class="col-md-12 chart-header"><span>Consumption Distribution per Year</span></div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 details-graph-container">
+                  <div id="selected-histogram-electricity"></div> 
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 details-graph-container">
+                  <div id="selected-histogram-gas"></div> 
+                </div>
+              </div>  
+
+              <div class="row">
+                <div class="col-md-12 chart-header"><span>Buildings Frequency</span></div>
+              </div>
+            </div>
             <div id="map_overview_detail" class="col-md-9 map-area"></div>
-            <div class="col-md-3 content-details"></div>
+
           </div>
         </div>
-        <div class="col-md-4" style="background-color: red;height: 500px">
-          <div class="row content-header" style="height: 50px">
+        <div class="col-md-4">
+          <div class="row content-header">
+            <div class="col-md-12 content-header">
+              <div class="pull-right">
+                Show
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-x">total KWH
+                    </button>
+                  <ul class="dropdown-menu dd-scatterplot-x">
+                    <li><a href="#">total KWH</a></li>
+                      <li><a href="#">total Therms</a></li>
+                      <li><a href="#">KWH SQFT</a></li>
+                      <li><a href="#">Thm SQFT</a></li>
+                      <li><a href="#">Ranking Electricity</a></li>
+                      <li><a href="#">Ranking Gas</a></li>
+                  </ul>
+                </div>
+                vs
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-y">total Therms
+                    </button>
+                  <ul class="dropdown-menu dd-scatterplot-y">
+                    <li><a href="#">total KWH</a></li>
+                      <li><a href="#">total Therms</a></li>
+                      <li><a href="#">KWH SQFT</a></li>
+                      <li><a href="#">Thm SQFT</a></li>
+                      <li><a href="#">Ranking Electricity</a></li>
+                      <li><a href="#">Ranking Gas</a></li>
+                  </ul>
+                </div>
+                with
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-r">population
+                    </button>
+                  <ul class="dropdown-menu dd-scatterplot-r">
+                    <li><a href="#">population</a></li>
+                      <li><a href="#">total units</a></li>
+                      <li><a href="#">occupied units</a></li>
+                      <li><a href="#">percentage occupied units</a></li>
+                      <li><a href="#">occupied housing units</a></li>
+                      <li><a href="#">renter occupied housing units</a></li>
+                  </ul>
+                </div>
+                in 
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-scatterplot-scale">log
+                    </button>
+                  <ul class="dropdown-menu dd-scatterplot-scale">
+                    <li><a href="#">real</a></li>
+                      <li><a href="#">log</a></li>
+                  </ul>
+                </div>
+                scale  
+              </div>            
+            </div>
           </div>
-          <div class="row header-row" style="height: 250px">
+
+          <div class="row">
+            <div class="col-md-12 content-right">
+              <div id="scatterplot"></div>
+            </div>
           </div>
+
+          <div class="row">
+            <div class="col-md-12 content-header">
+              <span>Comparison</span>
+              <div class="pull-right map-filters">
+                Compare
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-energy">community areas
+                    </button>
+                  <ul class="dropdown-menu dd-energy">
+                    <li><a href="#">census tracts</a></li>
+                      <li><a href="#">census blocks</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -106,8 +231,13 @@
     <script type="text/javascript" src="./js/lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <script src="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.1/leaflet.js"></script>
     <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 
     <script type="text/javascript" src="./js/model/model.js"></script>
+    <script type="text/javascript" src="./js/linechart.js"></script>
+    <script type="text/javascript" src="./js/histogram.js"></script>
+    <script type="text/javascript" src="./js/areaDetails.js"></script>
+    <script type="text/javascript" src="./js/scatterplot.js"></script>
     <script type="text/javascript" src="./js/map.js"></script>
     <script type="text/javascript" src="./js/Application.js"></script>
   </body>

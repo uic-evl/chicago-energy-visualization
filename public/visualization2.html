@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>EVL | Chicago Energy Visualization</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.7 -->
+  <link rel="stylesheet" href="/css/AdminLTE-2.4.2/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="/css/AdminLTE-2.4.2/bower_components/font-awesome/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="/css/AdminLTE-2.4.2/bower_components/Ionicons/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="/css/AdminLTE-2.4.2/dist/css/AdminLTE.min.css">
+  <!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+  <link rel="stylesheet" href="/css/AdminLTE-2.4.2/dist/css/skins/_all-skins.min.css">
+  <!-- jvectormap -->
+  <link rel="stylesheet" href="/css/AdminLTE-2.4.2/bower_components/jvectormap/jquery-jvectormap.css">
+  <!-- bootstrap wysihtml5 - text editor -->
+  <link rel="stylesheet" href="/css/AdminLTE-2.4.2/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.1/leaflet.css" />
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" href="./css/visualization.css">
+
+  <!-- Google Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <header class="main-header">
+    <!-- Header Navbar: style can be found in header.less -->
+    <nav class="navbar navbar-static-top" style="margin-left: 0px">
+      <a class="logo"><span class="logo-lg"><b>Chicago</b>Energy Consumption</span></a>
+
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+          <!-- Control Sidebar Toggle Button -->
+          <li>
+            <!--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>-->
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper" style="margin-left: 0px;">
+
+    <!-- Main content -->
+    <section class="content">
+      <!-- Main row -->
+      <div class="row">
+        <!-- Left col -->
+        <section class="col-lg-7 connectedSortable">
+
+          <div class="row">
+            <div class="col-lg-12 col-md-12 col-xs-12 info-box">
+              <div class="row">
+                <div class="col-lg-1 col-md-1 col-xs-1 bg-black cube" id="temp_button"></div>
+                <div class="col-lg-11 col-md-11 col-xs-11">
+                  <div id="area_details" class="area_details_container"></div>
+                </div>
+              </div>
+            </div>
+              <!-- /.info-box-content -->
+          </div>
+
+          <div class="row">
+
+            <!-- Custom tabs (Charts with tabs)-->
+            <section class="col-lg-3">
+              <div class="nav-tabs-custom">
+                <!-- Tabs within a box -->
+                <ul class="nav nav-tabs pull-right">
+                  <li id="community-consumption" class="pull-left header">Near West Side </li>
+                </ul>
+                <div class="tab-content no-padding">
+                  <!-- Charts for Community Area -->
+                  <div class="details-graph-container">
+                    <div id="selected-linechart-electricity"></div> 
+                  </div>
+                  <div class="details-graph-container">
+                    <div id="selected-linechart-gas" class="details-graph-container"></div>
+                  </div>
+                </div>
+              </div>
+              <!-- /.nav-tabs-custom -->
+
+              <div class="nav-tabs-custom">
+                <!-- Tabs within a box -->
+                <ul class="nav nav-tabs pull-right">
+                  <li id="community-distribution" class="pull-left header">Near West Side </li>
+                </ul>
+                <div class="tab-content no-padding">
+                  <!-- Charts for Community Area -->
+                  <div class="details-graph-container">
+                    <div id="selected-histogram-electricity"></div> 
+                  </div>
+                  <div class="details-graph-container">
+                    <div id="selected-histogram-gas"></div> 
+                  </div>
+                </div>
+              </div>
+
+              <div class="nav-tabs-custom">
+                <!-- Tabs within a box -->
+                <ul class="nav nav-tabs pull-right">
+                  <li id="community-buildings" class="pull-left header">Building in Near West Side</li>
+                </ul>
+                <div class="tab-content no-padding">
+                  <!-- Charts for Community Area -->
+                  <div id="selected-word-cloud"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="col-lg-9" style="padding-right: 0px;">
+              <!-- Custom tabs (Charts with tabs)-->
+              <div class="nav-tabs-custom">
+                <!-- Tabs within a box -->
+                <ul class="nav nav-tabs pull-right">
+                  <li id="community-map" class="pull-left header">Map Explorer</li>
+                  <li>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scale">real<span class="caret"></span>
+                        </button>
+                      <ul class="dropdown-menu dd-scale">
+                        <li><a href="#">real</a></li>
+                          <li><a href="#">logarithmic</a></li>
+                      </ul>
+                    </div>                    
+                  </li>
+                  <li class="chart-filter">Scale: </li>
+                  <li>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-area">census tracts<span class="caret"></span>
+                        </button>
+                      <ul class="dropdown-menu dd-area">
+                        <li><a href="#">census tracts</a></li>
+                          <li><a href="#">census blocks</a></li>
+                      </ul>
+                    </div>  
+                  </li>
+                  <li class="chart-filter">Detail: </li>
+                  <li>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-energy">electricity<span class="caret"></span>
+                        </button>
+                      <ul class="dropdown-menu dd-energy">
+                        <li><a href="#">electricity</a></li>
+                          <li><a href="#">gas</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li class="chart-filter">Data: </li>
+                </ul>
+                <div class="tab-content no-padding">
+                  <!-- Overview - Details map -->
+                  <div class="map-area" id="map_overview_detail"></div>
+                </div>
+              </div>
+              <!-- /.nav-tabs-custom -->
+            </section>
+
+          </div>
+          
+
+        </section>
+        <!-- /.Left col -->
+        <!-- right col (We are only adding the ID to make the widgets sortable)-->
+        <section class="col-lg-5 connectedSortable">
+
+          <!-- Map box -->
+          <div class="box box-solid bg-white">
+            <div class="box-header">
+
+                       
+
+              <!-- tools box -->
+              <div class="pull-right box-tools">
+                <!--
+                <button type="button" class="btn btn-primary btn-sm pull-right" data-widget="collapse"
+                        data-toggle="tooltip" title="Collapse" style="margin-right: 5px;">
+                  <i class="fa fa-minus"></i></button>-->
+                <span class="chart-filter">X-Axis:</span> 
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scatterplot-x">total KWH<span class="caret"></span>
+                    </button>
+                  <ul class="dropdown-menu dd-scatterplot-x">
+                    <li><a href="#">total kWh</a></li>
+                      <li><a href="#">total Thm</a></li>
+                      <li><a href="#">kWh SQFT</a></li>
+                      <li><a href="#">Thm SQFT</a></li>
+                      <li><a href="#">population</a></li>
+                  </ul>
+                </div>   
+              
+                <span class="chart-filter">Y-Axis: </span>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scatterplot-y">
+                    total Therms</span><span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dd-scatterplot-y">
+                      <li class="filter-value"><a href="#">total kWh</a></li>
+                      <li class="filter-value"><a href="#">total Thm</a></li>
+                      <li class="filter-value"><a href="#">kWh SQFT</a></li>
+                      <li class="filter-value"><a href="#">Thm SQFT</a></li>
+                      <li class="filter-value"><a href="#">population</a></li>
+                  </ul>
+                </div>  
+
+                <span class="chart-filter">Data:</span>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scatterplot-r">population<span class="caret"></span>
+                    </button>
+                  <ul class="dropdown-menu dd-scatterplot-r">
+                    <li><a href="#">population</a></li>
+                      <li class="filter-value"><a href="#">total units</a></li>
+                      <li class="filter-value"><a href="#">occupied units</a></li>
+                      <li class="filter-value"><a href="#">percentage occupied units</a></li>
+                      <li class="filter-value"><a href="#">occupied housing units</a></li>
+                      <li class="filter-value"><a href="#">renter occupied housing units</a></li>
+                  </ul>
+                </div>
+
+                <span class="chart-filter">Detail:</span>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scatterplot-detail">community areas<span class="caret"></span>
+                    </button>
+                  <ul class="dropdown-menu dd-scatterplot-detail">
+                      <li class="filter-value"><a href="#">community areas</a></li>
+                      <li class="filter-value"><a href="#">census tracts</a></li>
+                      <li class="filter-value"><a href="#">census blocks</a></li>
+                  </ul>
+                </div> 
+
+                <span class="chart-filter">Scale:</span>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scatterplot-scale">log
+                    <span class="caret"></span></button>
+                  <ul class="dropdown-menu dd-scatterplot-scale">
+                    <li class="filter-value"><a href="#">real</a></li>
+                    <li class="filter-value"><a href="#">log</a></li>
+                  </ul>
+                </div>                
+
+              </div>
+              <!-- /. tools -->
+
+
+              <h3 class="box-title">
+                
+              </h3>
+            </div>
+            <div class="box-body content-right">
+              <div id="scatterplot"></div>
+            </div>
+            <!-- /.box-body-->
+          </div>
+          <!-- /.box -->
+
+          <!-- solid sales graph -->
+          <div class="box box-solid bg-white">
+            <div class="box-header">
+
+              <h3 class="box-title">Compare Monthly Consumption</h3>
+
+              <div class="box-tools pull-right">
+                <!--
+                <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
+                </button>-->
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-comparison">community areas
+                    <span class="caret"></span></button>
+                    <ul class="dropdown-menu dd-comparison">
+                      <li><a href="#">community areas</a></li>
+                      <li><a href="#">census tracts</a></li>
+                      <li><a href="#">census blocks</a></li>
+                    </ul>
+                </div>                   
+              </div>
+            </div>
+            <div class="box-body border-radius-none comparison-charts">
+              <div class="row">
+                <div class="col-lg-4">
+                  <div id="linechart-comparison-list">
+                    <ul class="list-group" id="compare-list-group"></ul>
+                  </div>
+                </div>
+                <div class="col-lg-8">
+                  <div class="details-comparison-container">
+                    <div id="linechart-comparison-electricity"></div>
+                  </div>
+                  <div class="details-comparison-container">
+                    <div id="linechart-comparison-gas"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-body -->
+          </div>
+          <!-- /.box -->
+
+        </section>
+        <!-- right col -->
+      </div>
+      <!-- /.row (main row) -->
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer" style="margin-left: 0px">
+    <div class="pull-right hidden-xs">
+      <b>Version</b> 1.0.0
+    </div>
+    <strong>2017 <a href="https://www.evl.uic.edu/">Electronic Visualization Laboratory</a></strong> at the <strong>University of Illinois at Chicago</strong>
+  </footer>
+
+ 
+  <!-- /.control-sidebar -->
+  <!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 3 -->
+<script src="/css/AdminLTE-2.4.2/bower_components/jquery/dist/jquery.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="/css/AdminLTE-2.4.2/bower_components/jquery-ui/jquery-ui.min.js"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button);
+</script>
+<!-- Bootstrap 3.3.7 -->
+<script src="/css/AdminLTE-2.4.2/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- jvectormap -->
+<script src="/css/AdminLTE-2.4.2/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+<script src="/css/AdminLTE-2.4.2/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+<!-- jQuery Knob Chart -->
+<script src="/css/AdminLTE-2.4.2/bower_components/jquery-knob/dist/jquery.knob.min.js"></script>
+<!-- daterangepicker -->
+<script src="/css/AdminLTE-2.4.2/bower_components/moment/min/moment.min.js"></script>
+<!-- Bootstrap WYSIHTML5 -->
+<script src="/css/AdminLTE-2.4.2/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+<!-- Slimscroll -->
+<script src="/css/AdminLTE-2.4.2/bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<!-- FastClick -->
+<script src="/css/AdminLTE-2.4.2/bower_components/fastclick/lib/fastclick.js"></script>
+<!-- AdminLTE App -->
+<script src="/css/AdminLTE-2.4.2/dist/js/adminlte.min.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+
+<!-- AdminLTE for demo purposes -->
+<script src="/css/AdminLTE-2.4.2/dist/js/demo.js"></script>
+
+<script src="http://cdn.leafletjs.com/leaflet/v1.0.0-rc.1/leaflet.js"></script>
+<script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+<script type="text/javascript" src="./js/lib/d3.layout.cloud.js"></script>
+<script type="text/javascript" src="./js/model/model.js"></script>
+<script type="text/javascript" src="./js/linechart.js"></script>
+<script type="text/javascript" src="./js/histogram.js"></script>
+<script type="text/javascript" src="./js/areaDetails.js"></script>
+<script type="text/javascript" src="./js/scatterplot.js"></script>
+<script type="text/javascript" src="./js/map.js"></script>
+<script type="text/javascript" src="./js/comparison.js"></script>
+<script type="text/javascript" src="./js/Application.js"></script>
+</body>
+</html>

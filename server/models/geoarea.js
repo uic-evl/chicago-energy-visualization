@@ -8,7 +8,8 @@ var schema = new mongoose.Schema({
     },
     area_num_1: {
       type: Number
-    }
+    },
+    buildings: {}
   },
   geometry: mongoose.Schema.Types.Geometry
 });

@@ -1,14 +1,14 @@
-/* Move down content because we have a fixed navbar that is 3.5rem tall */
+
 body {
-  padding-top: 5.1rem;
+    font-family: 'Open Sans', sans-serif !important;
 }
 
-.content-right {
-
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: 'Open Sans', sans-serif !important;
 }
 
 .content-header {
-	font-family:  'Hoefler Text', Georgia, 'Times New Roman', serif;
+	font-family:  'Open Sans', sans-serif;
     background: rgb(179, 221, 242);
     font-weight: bolder;
     vertical-align: bottom;
@@ -22,6 +22,280 @@ body {
 	background-color: #DCDCDC;
 }
 
+.dot{
+    fill: orange;
+    fill-opacity: .3;
+}
+
+.dot_hovered {
+    fill-opacity: 1;
+    stroke-width:3px;
+    stroke:black;
+    stroke-dasharray: 5;
+}
+
+.dot_selected {
+    fill-opacity: 0.3;
+    stroke-width:3px;
+    stroke:black;
+}
+
+.path-linechart{
+    stroke-width: 1;
+    fill-opacity: 0;
+}
+
+.linechart-highlight{
+    stroke: black !important;
+    fill-opacity: 0;
+}
+
+.bar rect {
+  fill: steelblue;
+}
+
+.bar text {
+  fill: #fff;
+  font: 10px 'Open Sans', sans-serif;
+}
+
+.details_title {
+    color: black;
+    vertical-align: middle;
+}
+
+.details_label {
+    color: black;
+}
+
+.details_value {
+    color: black;
+    font-weight: bold;
+}
+
+.mini-map-container{
+    border-style: solid;
+    border-width: 2px;
+}
+
+.chart-header{
+    text-align: left;
+    color: black;
+}
+
+.histogram-title {
+    font-weight: bold;
+    color: black;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 10px;
+    text-anchor: middle;
+}
+
+.details_legend_container{
+    padding: 6px 8px;
+    font: 10px/12px 'Open Sans', sans-serif;
+    background: white;
+    background: rgba(0,0,0,0);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    height:220px;
+    width: 80px;
+    margin-right: 5px;
+}
+
+.overview_legend_container{
+    padding: 6px 8px;
+    font: 10px/12px 'Open Sans', sans-serif;
+    background: white;
+    background: rgba(0,0,0,0);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    height:130px;
+    width: 80px;
+    margin-right: 5px;
+}
+
+.linechart-y-text {
+    font-weight: bold;
+    color: black;
+    font-family: 'Open Sans', sans-serif;
+    text-anchor: left;
+}
+
+.leaflet-popup-content{
+    line-height: 1.2 !important;
+}
+
+.popup-value {
+    font-weight: bold;
+}
+
+.info-box-number {
+    font-weight: normal !important;
+}
+
+.bg-white {
+    background-color: white;
+    color: black;
+}
+
+.box.box-solid[class*='bg']>.box-header{
+    color: black !important;
+}
+
+.fa-trash-o:hover{
+    cursor: pointer;
+}
+
+#linechart-comparison-list{
+    overflow-y: scroll;
+}
+
+.list-group-item:hover{
+    background-color: #E7AD7A;
+}
+
+.main-header .logo {
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+.box.box-solid>.box-header .btn.btn-default {
+    background-color: #f4f4f4;
+    color: #444;
+    border-color: #ddd;
+}
+
+@media screen and (min-width: 1280px) {
+    .page-header {
+
+    }
+
+    .content-header {
+        font-size: 10px;
+    }
+
+    .nav-tabs-custom>.nav-tabs>li.header {
+        line-height: 20px !important;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+    }
+
+    .box-header>.fa, .box-header>.glyphicon, .box-header>.ion, .box-header .box-title {
+        display: inline-block;
+        font-size: 12px !important;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .info-box-number {
+        font-size: 14px !important;
+    }
+
+    .info-box {
+        min-height: 70px !important;
+        border-radius: 2px;
+        margin-bottom: 10px !important;
+    }
+
+    .cube {
+        height: 65px;
+    }
+
+    .content {
+        padding: 5px !important;
+    }
+
+    .map-area {
+        height: 590px;
+    }
+
+    .mini-map-container {
+        height: 240px;
+        width: 180px;
+    }
+
+    .content-details {
+        height: 700px;
+    }
+
+    .content-right {
+        height: 350px;
+    }
+
+    .main-footer {
+        padding: 5px !important;
+    }
+
+    .details-graph-container{
+        height: 90px;
+    }
+
+    .details-comparison-container{
+        height: 100px;
+    }
+
+    .details_title {
+        font-size: 16px;
+    }
+
+    .details_value {
+        font-size: 12px;
+    }
+
+    .details_label {
+        font-size: 14px;
+    }
+
+    .default-info {
+        padding-left: 20px;
+        padding-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .chart-header {
+        padding-left: 25px;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    #selected-word-cloud{
+        height: 150px;
+    }
+
+    .comparison-charts{
+        height: 242px;
+    }
+
+    #linechart-comparison-list{
+        height: 230px;
+    }
+
+    .nav-tabs-custom {
+        margin-bottom: 8px !important;
+    }
+
+    .chart-filter {
+        font-size: 10px;
+    }
+
+    .filter-value {
+        font-size: 10px;
+    }
+
+    .leaflet-touch .leaflet-bar a {
+        width: 15px;
+        height: 15px;
+        line-height: 15px;
+    }
+
+    .leaflet-touch .leaflet-control-zoom-in {
+        font-size: 15px;
+    }
+
+    #compare-list-group {
+        font-size: 12px;
+    }
+}
 
 @media screen and (min-width: 1900px) {
     .content-header {
@@ -29,16 +303,94 @@ body {
     }
 
     .map-area {
-    	height: 980px;
+    	height: 810px;
     }
 
     .mini-map-container {
-    	height: 500px;
-    	width: 350px;
+    	height: 300px;
+    	width: 220px;
+    }
+
+    .nav-tabs-custom>.nav-tabs>li.header {
+        line-height: 20px !important;
+        padding: 0 10px !important;
+        font-size: 18px !important;
+    }
+
+    .cube {
+        height: 90px;
+    }
+
+    .info-box-number {
+        font-size: 18px !important;
+    }
+
+    .content {
+        padding: 15px !important;
     }
 
     .content-details {
     	height: 980px;
+    }
+
+    .content-right {
+    	height: 450px;
+    }
+
+    .main-footer {
+        padding: 15px !important;
+    }
+
+    .details-graph-container{
+        height: 120px;
+    }
+
+    .details-comparison-container{
+        height: 180px;
+    }
+
+    .details_title {
+        font-size: 22px;
+    }
+
+    .details_value {
+        font-size: 16px;
+    }
+
+    .details_label {
+        font-size: 16px;
+    }
+
+    .default-info {
+        padding-left: 25px;
+        padding-top: 20px;
+    }
+
+    #selected-word-cloud{
+        height: 250px;
+    }
+
+    .comparison-charts{
+        height: 390px;
+    }
+
+    #linechart-comparison-list{
+        overflow-y: scroll;
+        height: 360px;
+    }
+
+    .leaflet-touch .leaflet-bar a {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .leaflet-touch .leaflet-control-zoom-in {
+        font-size: 30px;
+    }
+
+    #compare-list-group {
+        font-size: 14px;
     }
 }
 
@@ -58,5 +410,29 @@ body {
 
     .content-details {
     	height: 2000px;
+    }
+
+    .content-right {
+    	height: 1000px;
+    }
+
+    .details-graph-container{
+        height: 300px;
+    }
+
+    .details_title {
+        font-size: 40px;
+    }
+
+    .details_value {
+        font-size: 30px;
+    }
+
+    .details_label {
+        font-size: 30px;
+    }
+
+    #selected-word-cloud{
+        height: 400px;
     }
 }

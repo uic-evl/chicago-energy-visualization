@@ -15,10 +15,10 @@ MongoClient.connect('mongodb://localhost:27017/chicago_energy_2010', (err, db) =
 	//addCommunityAreaNumbers(db);
 	//createCommunityAreas(db);
 	//createCensusTractsNoAggregation(db);
-	//addEnergyPropertiesToGeoTracts(db);
+	addEnergyPropertiesToGeoTracts(db);
 	//convertCensusCodeToString(db);
 	//addEnergyPropertiesToGeoBlocks(db);
-	addEnergyPropertiesToGeoCommunities(db);
+	//aggregateBlocksData(db);
 	//addEnergyPropertiesToGeoTracts(db);
 	//nullEnergyPropertiesToGeoBlocks(db);
 });
@@ -388,8 +388,33 @@ function addEnergyPropertiesToGeoTracts(db){
 					console.log(tractce10 + " " + tract.TOTAL_THERMS + " " + tract.TOTAL_KWH);
 					geo_tract.properties["TOTAL_KWH"] = tract.TOTAL_KWH;
 					geo_tract.properties["TOTAL_THERMS"] = tract.TOTAL_THERMS;
+					geo_tract.properties["POPULATION"] = tract.TOTAL_POPULATION;
+					geo_tract.properties["TOTAL_UNITS"] = tract.TOTAL_UNITS;
+					geo_tract.properties["OCCUPIED_UNITS"] = tract.OCCUPIED_UNITS;
+					geo_tract.properties["OCCUPIED_HOUSING_UNITS"] = tract.OCCUPIED_HOUSING_UNITS;
+					geo_tract.properties["RENTER_OCCUPIED_HOUSING_UNITS"] = tract.RENTER_OCCUPIED_HOUSING_UNITS;
+					geo_tract.properties["KWH_TOTAL_SQFT"] = tract.KWH_TOTAL_SQFT;
+					geo_tract.properties["THERMS_TOTAL_SQFT"] = tract.THERMS_TOTAL_SQFT;
 				}
 				db.collection('geo_tracts').save(geo_tract);
+			});
+		});
+	});
+}
+
+function addCommunityIdToGeoBlocks(db){
+	let i = 1;
+	db.collection('geo_tracts').find({}).toArray().then((geo_tracts) => {
+		geo_tracts.forEach((geo_tract) => {
+			var tractce10 = geo_tract.properties.tractce10.toString();
+			
+			db.collection('geo_blocks').find({"properties.tractce10": tractce10 }).toArray().then((geoblocks) => {
+				geoblocks.forEach((geo_block) => {
+					geo_block.properties["commarea_n"] = geo_tract.properties["commarea_n"];
+					db.collection('geo_blocks').save(geo_block);
+					console.log(i);
+					i += 1;
+				});
 			});
 		});
 	});
@@ -415,43 +440,102 @@ function nullEnergyPropertiesToGeoBlocks(db){
 }
 
 function addEnergyPropertiesToGeoBlocks(db){
-	var k = 0;
-	db.collection('geo_blocks').find({}).toArray().then((geo_blocks) => {
+	var k = 1;
+	let updated_geo_blocks = [];
+
+	db.collection('geo_blocks_2').find({}).toArray().then((geo_blocks) => {
 		console.log("Processing " + geo_blocks.length + " elements");
+		var geoblocks = geo_blocks;
 
-		geo_blocks.forEach((geo_block) => {
-			var geoid = geo_block.properties.geoid10;
-			var total_kwh = 0;
-			var total_therms = 0;
+		db.collection('aggregated_blocks').find({}).toArray().then((_blocks) => {
 
-/*
-			var cursorBlocks = db.collection('blocks').find({"CENSUS_BLOCK": geoid});
-			cursorBlocks.each((err, blocks) => {
-				if (err) console.log(err);
-				/*if (blocks == null){
-					k++;
-					console.log(geoid + "," + k);	
-				} 
-			});
-*/
-			db.collection('blocks').find({"CENSUS_BLOCK": geoid}).toArray().then((blocks) => {
-				if (blocks && blocks.length > 0){
-					for(var i = 0; i < blocks.length; i++){
-						total_kwh += blocks[i].TOTAL_KWH;
-						total_therms += blocks[i].TOTAL_THERMS;
+			var blocks = _blocks;
+
+			db.collection('geo_tracts').find({}).toArray().then((geo_tracts) => {
+
+				geoblocks.forEach((geo_block) => {
+					let geoid = geo_block.properties.geoid10;
+					let index = getBlockIndex(geoid, blocks);
+
+					if (index != -1) {
+						geo_block.properties["TOTAL_KWH"] = blocks[index].TOTAL.TOTAL_KWH;
+						geo_block.properties["TOTAL_THERMS"] = blocks[index].TOTAL.TOTAL_THERMS;
+						geo_block.properties["POPULATION"] = blocks[index].TOTAL.TOTAL_POPULATION;
+						geo_block.properties["TOTAL_UNITS"] = blocks[index].TOTAL.TOTAL_UNITS;
+						geo_block.properties["OCCUPIED_HOUSING_UNITS"] = blocks[index].TOTAL.OCCUPIED_HOUSING_UNITS;
+						geo_block.properties["RENTER_OCCUPIED_HOUSING_UNITS"] = blocks[index].TOTAL.RENTER_OCCUPIED_HOUSING_UNITS;
+						geo_block.properties["KWH_TOTAL_SQFT"] = blocks[index].TOTAL.KWH_TOTAL_SQFT;
+						geo_block.properties["THERMS_TOTAL_SQFT"] = blocks[index].TOTAL.THERMS_TOTAL_SQFT;
+						geo_block.properties["ANONYMOUS"] = false;	// if it belongs to the anonymous entries from the raw data
+						geo_block.properties["COMMUNITY_AREA_ID"] = blocks[index]["COMMUNITY_AREA_ID"].toString();
+					} else {
+						geo_block.properties["ANONYMOUS"] = true;
+						let community_id = getCommunityIdFromGeoBlocks(geo_block.properties.tractce10, geo_tracts);
+						geo_block.properties["COMMUNITY_AREA_ID"] = community_id.toString();
 					}
 
-					geo_block.properties["TOTAL_KWH"] = total_kwh;
-					geo_block.properties["TOTAL_THERMS"] = total_therms;
-					db.collection('geo_blocks').save(geo_block);
+					console.log(k);
+					k++;
+					updated_geo_blocks.push(geo_block);
+
+				});
+
+				console.log("Inserting " + updated_geo_blocks.length + " updated blocks");
+				for (let i = 0; i < updated_geo_blocks.length; i++){
+					db.collection('geo_blocks_4').save(updated_geo_blocks[i]);
 				}
-				//k++;
-				console.log(geoid + ":" + geo_block.properties["TOTAL_KWH"] + ", " + geo_block.properties["TOTAL_THERMS"]);
+				console.log("End");
+
+			});
+
+		});
+
+/*
+		geo_blocks.forEach((geo_block) => {
+			var geoid = geo_block.properties.geoid10;
+
+			db.collection('aggregated_blocks').findOne({"CENSUS_BLOCK": geoid}).then((block) => {
+				if (block){
+					geo_block.properties["TOTAL_KWH"] = block.TOTAL.TOTAL_KWH;
+					geo_block.properties["TOTAL_THERMS"] = block.TOTAL.TOTAL_THERMS;
+					geo_block.properties["POPULATION"] = block.TOTAL.POPULATION;
+					geo_block.properties["TOTAL_UNITS"] = block.TOTAL.TOTAL_UNITS;
+					geo_block.properties["OCCUPIED_HOUSING_UNITS"] = block.TOTAL.OCCUPIED_HOUSING_UNITS;
+					geo_block.properties["RENTER_OCCUPIED_HOUSING_UNITS"] = block.TOTAL.RENTER_OCCUPIED_HOUSING_UNITS;
+					geo_block.properties["KWH_TOTAL_SQFT"] = block.TOTAL.KWH_TOTAL_SQFT;
+					geo_block.properties["THERMS_TOTAL_SQFT"] = block.TOTAL.THERMS_TOTAL_SQFT;
+					geo_block.properties["ANONYMOUS"] = false;	// if it belongs to the anonymous entries from the raw data
+				} else {
+					geo_block.properties["ANONYMOUS"] = true;
+				}
+				//db.collection('geo_blocks_2').save(geo_block);
+				console.log(k);
+				k++;
+				updated_geo_blocks.push(geo_block);
+			}).catch((error) => {
+				console.log(error);
 			});
 			
-		});
+		});*/
+
+		
 	});
 }
+
+function getBlockIndex(id, blocks){
+	for (let i = 0; i < blocks.length; i++) {
+		if (blocks[i].CENSUS_BLOCK == id)
+			return i;
+	}
+	return -1;
+}
+
+function getCommunityIdFromGeoBlocks(id, geotracts){
+	for (let i = 0; i < geotracts.length; i++)
+		if (geotracts[i].properties.tractce10 == id)
+			return geotracts[i].properties.commarea_n;
+	return "-1";
+} 
 
 /*
 function addEnergyPropertiesToGeoBlocks(db){
@@ -504,6 +588,87 @@ function addEnergyPropertiesToGeoBlocks(db){
 	});
 }
 */
+
+/* Blocks data can have more than one entry because of the different building types
+   Data will be aggregated per block, including the total sum for the block.
+   Data for aggregated blocks is also considered. */
+function aggregateBlocksData(db) {
+
+	let checked_fields = getAggregationFields();
+	let aggregated_blocks = [];
+
+	db.collection('blocks').find({}).toArray().then((blocks) => {
+
+		blocks.forEach((block) => {
+
+			let new_aggregated_block = null;
+			let exist = blockExist(block.CENSUS_BLOCK, aggregated_blocks);
+
+			if (exist == -1) {
+
+				new_aggregated_block = {
+					"COMMUNITY_AREA_NAME": block.COMMUNITY_AREA_NAME,
+					"CENSUS_BLOCK": block.CENSUS_BLOCK,
+					"STATE_FIPS": block.STATE_FIPS,
+					"COUNTY_FIPS": block.COUNTY_FIPS,
+					"TRACT": block.TRACT,
+					"BLOCK": block.BLOCK,
+					"COMMUNITY_AREA_ID": -1,
+					"BUILDINGS": [],
+					"TOTAL" : {}
+				}
+
+				for (let i = 0; i < community_area_numbers.length; i++)
+					if (community_area_numbers[i]["COMMUNITY AREA NAME"] == block.COMMUNITY_AREA_NAME){
+						new_aggregated_block.COMMUNITY_AREA_ID = community_area_numbers[i]["Community Area Number"];
+						break;
+					}
+
+				for (let i = 0; i < checked_fields.length; i++ ){
+					new_aggregated_block.TOTAL[checked_fields[i]] = block[checked_fields[i]];
+					if (new_aggregated_block.TOTAL[checked_fields[i]] == "" ||
+						new_aggregated_block.TOTAL[checked_fields[i]] == null || 
+						new_aggregated_block.TOTAL[checked_fields[i]] == undefined)
+						new_aggregated_block.TOTAL[checked_fields[i]] = 0;
+				}
+
+				new_aggregated_block["BUILDINGS"].push(block);
+				aggregated_blocks.push(new_aggregated_block);
+
+			} else {
+
+				aggregated_blocks[exist]["BUILDINGS"].push(block);
+				for (let i = 0; i < checked_fields.length; i++ ){
+					let val = block[checked_fields[i]];
+					if (val == "" || val == null || val == undefined) val = 0;
+					aggregated_blocks[exist].TOTAL[checked_fields[i]] += val;
+				}
+
+			}
+
+		});
+		console.log(aggregated_blocks.length);
+
+		for (let i = 0; i < aggregated_blocks.length; i++){
+			db.collection('aggregated_blocks').save(aggregated_blocks[i]);
+		}
+		console.log("end");
+
+	});
+
+}
+
+function blockExist(block_id, blocks) {
+
+	let position = -1;
+	if (block_id == "") return -1;	// aggregated data
+
+	for (let i = 0; i < blocks.length; i++) {
+		if (blocks[i]["CENSUS_BLOCK"] == block_id) 
+			return i;
+	}
+	return position;
+}
 
 
 function addTest(db){

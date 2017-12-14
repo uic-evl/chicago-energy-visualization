@@ -1,4 +1,4 @@
-function LineChart(container, energy, data){
+function LineChart(container, energy, data, id){
     this.chart = {};
 
     this.margin = { top: 20, right: 30, bottom: 40, left: 40 };
@@ -14,6 +14,7 @@ function LineChart(container, energy, data){
     this.max = Math.max(...data);
 
     let elem = { values: [] };
+    elem.id = id;
     for (let i = 0; i < 12; i++)
         elem.values.push({
             'date': new Date(2010, i, 1),
@@ -23,7 +24,7 @@ function LineChart(container, energy, data){
 
     this.showXticks = true;
     this.showYticks = true;
-    this.num_x_ticks = 6;
+    this.num_x_ticks = 7;
     this.num_y_ticks = 3;
     this.color = "red";
 }
@@ -35,6 +36,17 @@ LineChart.prototype = {
         let self = this,
             timeParser = d3.timeParse("%Y%m%d"),
             formatter = d3.format(".2s");
+
+        self.min = Number.MAX_VALUE;
+        self.max = 0;
+
+        for (let i = 0; i < self.data.length; i++)
+            for (let j = 0; j < self.data[i].values.length; j++){
+                if (self.data[i].values[j].consumption > self.max)
+                    self.max = self.data[i].values[j].consumption;
+                if (self.data[i].values[j].consumption < self.min)
+                    self.min = self.data[i].values[j].consumption;
+            }
 
         d3.select("#" + self.container).select("svg").remove();
 
@@ -66,7 +78,8 @@ LineChart.prototype = {
                 .ticks(self.num_x_ticks)
                 .tickFormat(d3.timeFormat("%b")))
             .selectAll("text")
-                .attr("text-anchor", "end");
+                .attr("text-anchor", "end")
+                .attr("transform", "rotate(-30)");
 
         let yTicks = g.append("g")
                         .attr("class", "axis axis--y")
@@ -80,9 +93,43 @@ LineChart.prototype = {
             .attr("class", "line_zone");
 
         zone.append("path")
-            .attr("class", "line path-linechart")
+            .attr("class", function(d) {
+                return "line path-linechart line" + d.id; 
+            })
             .attr("d", function(d) { 
                 return line(d.values); })
             .style("stroke", self.color);
+
+        let consumption_unit = "kWh";
+        if (self.energy == "gas") consumption_unit = "thm";
+
+        g.append("text")
+            .attr("class", "label path-scatter linechart-y-text")
+            .attr("transform", "translate(10,-5)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .text(consumption_unit);
+    },
+
+    addDataItem: function(id, item) {
+
+        let elem = { values: [] };
+        elem.id = id;
+        for (let i = 0; i < 12; i++)
+            elem.values.push({
+                'date': new Date(2010, i, 1),
+                'consumption': item[i]
+            });
+        this.data.push(elem);
+
+    },
+
+    highlight: function(id) {
+        this.svg.select(".line" + id).classed("linechart-highlight", true);
+        console.log(this.svg.select(".line" + id).classed("linechart-highlight"));
+    },
+
+    resetHighlight: function() {
+        this.svg.select(".linechart-highlight").classed("linechart-highlight", false);
     }
 }

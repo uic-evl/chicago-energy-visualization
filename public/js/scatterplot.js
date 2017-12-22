@@ -88,19 +88,69 @@ ScatterPlot.prototype = {
             }
 
             elem.total_units = data[i].properties.TOTAL_UNITS;
-            if (elem.total_units == 0 || elem.total_units == undefined) elem.total_units = 1;
+            if (elem.total_units == 0 || elem.total_units == undefined) {
+                elem.LOG_total_units = 0;
+            } else {
+                elem.LOG_total_units = Math.log(elem.total_units );
+            }   
 
             elem.occupied_units = data[i].properties.OCCUPIED_UNITS;
-            if (elem.occupied_units == 0 || elem.occupied_units == undefined) elem.occupied_units = 1;
+            if (elem.occupied_units == 0 || elem.occupied_units == undefined){
+                elem.LOG_occupied_units = 0;  
+            } else {
+                elem.LOG_occupied_units = Math.log(elem.occupied_units );
+            }
 
             elem.percentage_occupied_units = (data[i].properties.OCCUPIED_UNITS / data[i].properties.TOTAL_UNITS) * 100;
-            if (elem.percentage_occupied_units == 0 || elem.percentage_occupied_units == undefined) elem.percentage_occupied_units = 1;
+            if (elem.percentage_occupied_units == 0 || elem.percentage_occupied_units == undefined) {
+                elem.LOG_percentage_occupied_units = 0;
+            } else {
+                elem.LOG_percentage_occupied_units = Math.log(elem.percentage_occupied_units );
+            }
 
             elem.occupied_housing_units = data[i].properties.OCCUPIED_HOUSING_UNITS;
-            if (elem.occupied_housing_units == 0 || elem.occupied_housing_units == undefined) elem.occupied_housing_units = 1;
+            if (elem.occupied_housing_units == 0 || elem.occupied_housing_units == undefined) {
+                elem.LOG_occupied_housing_units = 0;
+            } else {
+                elem.LOG_occupied_housing_units = Math.log(elem.occupied_housing_units );
+            }
 
             elem.renter_occupied_housing_units = data[i].properties.RENTER_OCCUPIED_HOUSING_UNITS;
-            if (elem.renter_occupied_housing_units == 0 || elem.renter_occupied_housing_units == undefined) elem.renter_occupied_housing_units = 1;
+            if (elem.renter_occupied_housing_units == 0 || elem.renter_occupied_housing_units == undefined){
+                elem.LOG_renter_occupied_housing_units = 0;  
+            } else {
+                elem.LOG_renter_occupied_housing_units = Math.log(elem.renter_occupied_housing_units);
+            }
+
+            elem.KWH_TOTAL_SQFT = data[i].properties.KWH_TOTAL_SQFT;
+            if (elem.KWH_TOTAL_SQFT == -1) elem.KWH_TOTAL_SQFT = 0;
+            if (elem.KWH_TOTAL_SQFT == -1) elem.LOG_KWH_TOTAL_SQFT = 0;
+            else elem.LOG_KWH_TOTAL_SQFT = Math.log(elem.KWH_TOTAL_SQFT);
+
+            elem.THERMS_TOTAL_SQFT = data[i].properties.THERMS_TOTAL_SQFT;
+            if (elem.THERMS_TOTAL_SQFT == -1) elem.THERMS_TOTAL_SQFT = 0;
+            if (elem.THERMS_TOTAL_SQFT == 0) elem.LOG_THERMS_TOTAL_SQFT = 0;
+            else elem.LOG_THERMS_TOTAL_SQFT = Math.log(elem.THERMS_TOTAL_SQFT);
+
+            elem.KWH_TOTAL_SQMETERS = data[i].properties.KWH_TOTAL_SQMETERS;
+            if (elem.KWH_TOTAL_SQMETERS == -1) elem.KWH_TOTAL_SQMETERS = 0;
+            if (elem.KWH_TOTAL_SQMETERS == 0) elem.LOG_KWH_TOTAL_SQMETERS= 0;
+            else elem.LOG_KWH_TOTAL_SQMETERS= Math.log(elem.KWH_TOTAL_SQMETERS);
+
+            elem.THERMS_TOTAL_SQMETERS = data[i].properties.THERMS_TOTAL_SQMETERS;
+            if (elem.THERMS_TOTAL_SQMETERS == -1) elem.THERMS_TOTAL_SQMETERS = 0;
+            if (elem.THERMS_TOTAL_SQMETERS == 0) elem.LOG_THERMS_TOTAL_SQMETERS = 0;
+            else elem.LOG_THERMS_TOTAL_SQMETERS = Math.log(elem.THERMS_TOTAL_SQMETERS);
+
+            elem.KWH_TOTAL_CAPITA= data[i].properties.KWH_TOTAL_CAPITA;
+            if (elem.KWH_TOTAL_CAPITA == -1) elem.KWH_TOTAL_CAPITA = 0;
+            if (elem.KWH_TOTAL_CAPITA == 0) elem.LOG_KWH_TOTAL_CAPITA = 0;
+            else elem.LOG_KWH_TOTAL_CAPITA = Math.log(elem.KWH_TOTAL_CAPITA);
+
+            elem.THERMS_TOTAL_CAPITA= data[i].properties.THERMS_TOTAL_CAPITA;
+            if (elem.KWH_TOTAL_SQMETERS == -1) elem.THERMS_TOTAL_CAPITA = 0;
+            if (elem.THERMS_TOTAL_CAPITA == 0) elem.LOG_THERMS_TOTAL_SQMETERS = 0;
+            else elem.LOG_THERMS_TOTAL_CAPITA = Math.log(elem.THERMS_TOTAL_CAPITA);
 
             this.data.push(elem);
         }
@@ -163,7 +213,9 @@ ScatterPlot.prototype = {
                     return self.axis.y(d["LOG_" + self.y_name]);
                 else return self.axis.y(d[self.y_name]);
             }).attr("r", function(d)  { 
-                return self.axis.r(d[self.radius_name]); });
+                let val = d[self.radius_name];
+                if (val == 0) val = 1;
+                return self.axis.r(val); });
 
         if (self.mode == "log"){
             self.svg.select(".x.axis")
@@ -338,6 +390,12 @@ ScatterPlot.prototype = {
         if (friendly_name == "percentage occupied units") return "percentage_occupied_units";
         if (friendly_name == "occupied housing units") return "occupied_housing_units";
         if (friendly_name == "renter occupied housing units") return "renter_occupied_housing_units";
+        if (friendly_name == "kwh sqft") return "KWH_TOTAL_SQFT";
+        if (friendly_name == "thm sqft") return "THERMS_TOTAL_SQFT";
+        if (friendly_name == "kwh sqmt") return "KWH_TOTAL_SQMETERS";
+        if (friendly_name == "thm sqmt") return "THERMS_TOTAL_SQMETERS";
+        if (friendly_name == "electricity per capita") return "KWH_TOTAL_CAPITA";
+        if (friendly_name == "gas per capita") return "THERMS_TOTAL_CAPITA";
         return "";
     },
 

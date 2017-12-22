@@ -264,6 +264,8 @@ app.get('/community_consumption/:community_id', (req, res) =>{
 		response.THERMS_TOTAL_SQFT = community.THERMS_TOTAL_SQFT;
 		response.TOTAL_KWH = community.TOTAL_KWH;
 		response.TOTAL_THERMS = community.TOTAL_THERMS;
+		response.KWH_TOTAL_CAPITA = community.KWH_TOTAL_CAPITA;
+		response.THERMS_TOTAL_CAPITA = community.THERMS_TOTAL_CAPITA;
 		response.electricity = [  community.KWH_JANUARY_2010,
 								  community.KWH_FEBRUARY_2010,
 								  community.KWH_MARCH_2010,

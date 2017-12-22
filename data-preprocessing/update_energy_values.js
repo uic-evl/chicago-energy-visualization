@@ -113,18 +113,18 @@ function getCommunityProperties(id, props, area) {
 
 			if (isNaN(area.TOTAL_KWH)){
 				area.KWH_TOTAL_CAPITA = -1;
-			} else if (area.POPULATION == 0){
+			} else if (area.TOTAL_POPULATION == 0){
 				area.KWH_TOTAL_CAPITA = 0;
 			} else {
-				area.KWH_TOTAL_CAPITA = area.TOTAL_KWH / area.POPULATION;
+				area.KWH_TOTAL_CAPITA = area.TOTAL_KWH / area.TOTAL_POPULATION;
 			}
 
 			if (isNaN(area.TOTAL_THERMS)){
 				area.THERMS_TOTAL_CAPITA = -1;
-			} else if (area.POPULATION == 0){
+			} else if (area.TOTAL_POPULATION == 0){
 				area.THERMS_TOTAL_CAPITA = 0;
 			} else {
-				area.THERMS_TOTAL_CAPITA = area.TOTAL_THERMS / area.POPULATION;
+				area.THERMS_TOTAL_CAPITA = area.TOTAL_THERMS / area.TOTAL_POPULATION;
 			}
 
 			return area;

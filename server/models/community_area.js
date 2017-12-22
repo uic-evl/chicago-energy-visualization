@@ -33,7 +33,9 @@ var CommunityArea = mongoose.model('community_areas_2', {
 	"THERM_DECEMBER_2010": Number,
 	"KWH_TOTAL_SQFT": Number,
 	"THERMS_TOTAL_SQFT": Number,
-	"OCCUPIED_UNITS": Number
+	"OCCUPIED_UNITS": Number,
+	"KWH_TOTAL_CAPITA": Number ,
+    "THERMS_TOTAL_CAPITA": Number
 });
 
 module.exports = {CommunityArea};

@@ -33,10 +33,10 @@ AreaDetails.prototype = {
 				population: ko.observable(f(self.data.TOTAL_POPULATION)),
 				total_units: ko.observable(f(self.data.TOTAL_UNITS)),
 				occupied_units: ko.observable(f(self.data.OCCUPIED_UNITS)),
-				kwh_sqft: ko.observable(f(self.data.KWH_TOTAL_SQFT)),
-				therm_sqft: ko.observable(f(self.data.THERMS_TOTAL_SQFT)),
-				electricity_per_capita: ko.observable(f2(self.data.TOTAL_KWH/self.data.TOTAL_POPULATION)),
-				gas_per_capita: ko.observable(f2(self.data.TOTAL_THERMS/self.data.TOTAL_POPULATION))
+				kwh_sqft: ko.observable(f2(self.data.KWH_TOTAL_SQFT)),
+				therm_sqft: ko.observable(f2(self.data.THERMS_TOTAL_SQFT)),
+				electricity_per_capita: ko.observable(f2(self.data.KWH_TOTAL_CAPITA)),
+				gas_per_capita: ko.observable(f2(self.data.THERMS_TOTAL_CAPITA))
 			}
 		return view_model;
 	},

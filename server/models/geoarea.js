@@ -9,7 +9,27 @@ var schema = new mongoose.Schema({
     area_num_1: {
       type: Number
     },
-    buildings: {}
+    buildings: {},
+    TOTAL_THERMS: {
+      type: Number
+    },
+    TOTAL_KWH: {
+      type: Number
+    },
+    KWH_TOTAL_SQFT: {
+      type: Number
+    },
+    THERMS_TOTAL_SQFT: {
+      type: Number
+    },
+    KWH_TOTAL_SQMETERS: {
+      type: Number
+    },
+    THERMS_TOTAL_SQMETERS: {
+      type: Number
+    },
+    KWH_TOTAL_CAPITA: { type: Number },
+    THERMS_TOTAL_CAPITA: { type: Number }
   },
   geometry: mongoose.Schema.Types.Geometry
 });

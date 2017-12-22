@@ -20,7 +20,21 @@ var schema = new mongoose.Schema({
     },
     ANONYMOUS: {
       type: Boolean
-    }
+    },
+    KWH_TOTAL_SQFT: {
+      type: Number
+    },
+    THERMS_TOTAL_SQFT: {
+      type: Number
+    },
+    KWH_TOTAL_SQMETERS: {
+      type: Number
+    },
+    THERMS_TOTAL_SQMETERS: {
+      type: Number
+    },
+    KWH_TOTAL_CAPITA: { type: Number },
+    THERMS_TOTAL_CAPITA: { type: Number }
   },
   geometry: mongoose.Schema.Types.Geometry
 });

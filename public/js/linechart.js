@@ -1,26 +1,31 @@
 function LineChart(container, energy, data, id){
     this.chart = {};
 
-    this.margin = { top: 20, right: 30, bottom: 40, left: 40 };
+    this.margin = { top: 20, right: 30, bottom: 30, left: 40 };
     this.height = 0;
     this.width = 0;
     this.container = container;
+    this.colors = ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3"];
 
     this.energy = energy;
     this.svg = null;
 
     this.data = [];
-    this.min = Math.min(...data);
-    this.max = Math.max(...data);
+    if (data != null){
+        this.min = Math.min(...data);
+        this.max = Math.max(...data);
+    }
 
     let elem = { values: [] };
     elem.id = id;
-    for (let i = 0; i < 12; i++)
-        elem.values.push({
-            'date': new Date(2010, i, 1),
-            'consumption': data[i]
-        });
-    this.data.push(elem);
+    if (data != null){
+        for (let i = 0; i < 12; i++)
+            elem.values.push({
+                'date': new Date(2010, i, 1),
+                'consumption': data[i]
+            });
+        this.data.push(elem);
+    }
 
     this.showXticks = true;
     this.showYticks = true;
@@ -76,10 +81,10 @@ LineChart.prototype = {
             .attr("transform", "translate(0," + self.height + ")")
             .call(d3.axisBottom(x)
                 .ticks(self.num_x_ticks)
+                .tickValues([new Date(2010, 0 , 1), new Date(2010, 11, 1)])
                 .tickFormat(d3.timeFormat("%b")))
             .selectAll("text")
-                .attr("text-anchor", "end")
-                .attr("transform", "rotate(-30)");
+                .attr("text-anchor", "end");
 
         let yTicks = g.append("g")
                         .attr("class", "axis axis--y")
@@ -98,17 +103,90 @@ LineChart.prototype = {
             })
             .attr("d", function(d) { 
                 return line(d.values); })
-            .style("stroke", self.color);
+            .style("stroke", (d, i) => {
+                let index = i % self.colors.length;
+                return self.colors[index];
+            });
 
-        let consumption_unit = "kWh";
-        if (self.energy == "gas") consumption_unit = "thm";
+        let consumption_unit = "electricity in kWh";
+        if (self.energy == "gas") consumption_unit = "gas in thm";
 
         g.append("text")
             .attr("class", "label path-scatter linechart-y-text")
-            .attr("transform", "translate(10,-5)")
+            .attr("transform", "translate(-20,-20)")
             .attr("y", 6)
             .attr("dy", ".71em")
             .text(consumption_unit);
+
+        /*self.svg.append("text")
+            .attr("class", "linechart-title")
+            .attr("transform", "translate(" + self.width/2 + " ," + (self.height + 30)  + ")")
+            .text(self.energy);*/
+
+        // adding hovering 
+        let focus = g.append("g")
+            .attr("class", "x-hover-line hover-line focus")
+            .attr("y1", 0)
+            .attr("y2", self.height)
+            .style("display", "none");
+
+        focus.append("line")
+            .attr("class", "x-hover-line hover-line")
+            .attr("y1", 0)
+            .attr("y2", self.height);
+
+        /*
+        focus.append("line")
+            .attr("class", "y-hover-line hover-line")
+            .attr("x1", self.width)
+            .attr("x2", self.width);
+*/
+        focus.append("circle")
+            .attr("r", 3);
+
+        for (let i = 0; i < self.data.length; i++)
+            focus.append("text").attr("class", "linechart-hover-text").attr("dy", ".31em");
+
+        self.svg.append("rect")
+            .attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")")
+            .attr("class", "overlay")
+            .attr("width", self.width)
+            .attr("height", self.height)
+            .on("mouseover", function() { focus.style("display", null); })
+            .on("mouseout", function() { focus.style("display", "none"); })
+            .on("mousemove", mousemove);
+
+        var bisectDate = d3.bisector(function(d) { return d.date; }).left;
+        var f = d3.format(".2s");
+        var mlist = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+
+        function mousemove() {
+            if (self.data.length > 0){
+              var x0 = x.invert(d3.mouse(this)[0]),
+                  i = bisectDate(self.data[0].values, x0, 1),
+                  d0 = self.data[0].values[i - 1],
+                  d1 = self.data[0].values[i],
+                  d = x0 - d0.date > d1.date - x0 ? d1 : d0,
+                  j = x0 - d0.date > d1.date - x0 ? i : i - 1;
+              
+              focus.attr("transform", "translate(" + x(d.date) + "," + y(d.consumption) + ")");
+              focus.selectAll("text")
+                .text(function(e, i) { 
+                    return mlist[self.data[i].values[j].date.getMonth()] + ": " + f(self.data[i].values[j].consumption); 
+                }).attr("transform", function(e, i) {
+                    let y_mov = 0;
+                    if (i > 0)
+                        y_mov = y(self.data[i].values[j].consumption) - y(d.consumption);
+                    return "translate(0," + y_mov + ")";
+                });
+              if (x(d.date) > self.width / 2)
+                focus.selectAll("text").style("text-anchor", "end").attr("x", -10);
+              else focus.selectAll("text").style("text-anchor", "start").attr("x", 10);
+
+              focus.select(".x-hover-line").attr("y2", self.height - y(d.consumption));
+              //focus.select(".y-hover-line").attr("x2", self.width + self.width);
+            }
+        }
     },
 
     addDataItem: function(id, item) {
@@ -126,7 +204,6 @@ LineChart.prototype = {
 
     highlight: function(id) {
         this.svg.select(".line" + id).classed("linechart-highlight", true);
-        console.log(this.svg.select(".line" + id).classed("linechart-highlight"));
     },
 
     resetHighlight: function() {

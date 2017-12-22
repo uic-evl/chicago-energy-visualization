@@ -35,11 +35,13 @@ App.prototype = {
 			this.area_details.update(consumption);
 			this.area_details.updateElectricityLineChart();
 			this.area_details.updateGasLineChart();
+			this.histogramElectricity.community = consumption.NAME;
+			this.histogramGas.community = consumption.NAME;
 			this.histogramElectricity.updateLine(consumption.TOTAL_KWH);
 			this.histogramGas.updateLine(consumption.TOTAL_THERMS);
 
 			$("#community-consumption").text("Consumption in " + consumption.NAME);
-			$("#community-distribution").text("Distribution in " + consumption.NAME);
+			$("#community-distribution").text("Communities Distribution");
 			$("#community-buildings").text("Buildings in " + consumption.NAME);
 			$("#community-map").text("Map Explorer of " + consumption.NAME);
 
@@ -61,15 +63,26 @@ App.prototype = {
 
 	addComparisonData: function(type, id) {
 
-		let url = SERVER + ":3000";
-		if (type == "CENSUS_TRACTS")
-			url = url + "/tract_consumption/" + id;
-		else
-			url = url + "/block_consumption/" + id;
+		if (type == "COMMUNITY_AREAS")
+			this.addCommunityComparisonData(); 
+		else {
+			let url = SERVER + ":3000";
+			if (type == "CENSUS_TRACTS"){
+				url = url + "/tract_consumption/" + id;
+			}
+			else {  
+				url = url + "/block_consumption/" + id;
+			}	
 
-		$.getJSON(url, { format: "jsonp" }).done((data) => {
-			this.comparison.add(data.ID, data.NAME, data.electricity, data.gas, type);
-		});
+			$.getJSON(url, { format: "jsonp" }).done((data) => {
+				let community_name = $("#selected-community-name").text();
+				this.comparison.add(data.ID, data.NAME, data.electricity, data.gas, type, community_name);
+			});
+		}
+
+		if (this.comparison.showing != type){
+			this.comparison.update(type);
+		}
 
 	},
 
@@ -151,7 +164,7 @@ App.prototype = {
 			layer = this.map.minimap.getLayerByName(name);
 			this.map.minimap.selectLayer(layer);
 		} else {
-			layer = this.map.getLayerByName(name);
+			layer = this.map.getLayerByGeoId(name);
 			this.map.selectLayer(layer);
 		}		
 
@@ -161,6 +174,19 @@ App.prototype = {
 
 		if (this.scatterplot.level == sender)
 			this.scatterplot.highlightElement(id);
+		else {
+			this.updateScatterplot(sender);
+			this.scatterplot.highlightElement(id);
+
+			let label = "";
+			if (sender == "CENSUS_BLOCKS")
+				label = "census blocks";
+			else if (sender == "CENSUS_TRACTS")
+				label = "census tracts";
+			else if (sender == "COMMUNITY_AREAS")
+				label = "community areas";
+			$('#dd-scatterplot-detail').text(label);
+		}
 
 	},
 
@@ -196,6 +222,7 @@ App.prototype = {
 	},
 
 	loadWordCloud2: function(words) {
+
 		let tags = words;
 		d3.select("#selected-word-cloud").select("svg").remove();
 
@@ -293,6 +320,8 @@ App.prototype = {
 
 	loadWordCloud: function(words) {
 
+		console.log(words);
+
 		d3.select("#selected-word-cloud").select("svg").remove();
 
 		let w = $("#selected-word-cloud").width();
@@ -360,14 +389,15 @@ App.prototype = {
 				}
 			}
 
+			app.selectScatterplotItem(community.NAME);
 			app.area_details = new AreaDetails("area_details", "area_details_container", null);
 			app.updateAreaDetails(28);
 
 			let hElecTitle = "electricity in kWh";
 			let hGasTitle  = "gas in thm";
 
-			app.histogramElectricity = new Histogram("selected-histogram-electricity", app, app.model.hist_community_electricity, hElecTitle);
-			app.histogramGas = new Histogram("selected-histogram-gas", app, app.model.hist_community_gas, hGasTitle);
+			app.histogramElectricity = new Histogram("selected-histogram-electricity", app, app.model.hist_community_electricity, hElecTitle, community.NAME);
+			app.histogramGas = new Histogram("selected-histogram-gas", app, app.model.hist_community_gas, hGasTitle, community.NAME);
 
 			app.histogramElectricity.init();
 			app.histogramElectricity.updateLine(community.TOTAL_KWH);
@@ -396,8 +426,19 @@ App.prototype = {
 
 		$('.dd-energy li > a').click((e) => {
 			let energy = e.currentTarget.innerText;
+
+			let filter = energy;
+			if (energy == "electricity (total)") filter = "TOTAL_KWH";
+			else if (energy == "gas (total)") filter = "TOTAL_THERMS";
+			else if (energy == "kwh sqft") filter = "KWH_TOTAL_SQFT";
+			else if (energy == "thm sqft") filter = "THERMS_TOTAL_SQFT";
+			else if (energy == "kwh sqmt") filter = "KWH_TOTAL_SQM";
+			else if (energy == "thm sqmt") filter = "THERMS_TOTAL_SQMETERS";
+			else if (energy == "electricity per capita") filter = "KWH_TOTAL_CAPITA";
+			else if (energy == "gas per capita") filter = "THERMS_TOTAL_CAPITA";
+
 			$('#dd-energy').text(energy);
-			app.map.onEnergyChange(energy);
+			app.map.onEnergyChange(filter);
 		});
 
 		$('.dd-scatterplot-x li > a').click((e) => {

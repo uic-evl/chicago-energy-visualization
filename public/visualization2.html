@@ -37,12 +37,13 @@
   <header class="main-header">
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top" style="margin-left: 0px">
-      <a class="logo"><span class="logo-lg"><b>Chicago</b>Energy Consumption</span></a>
+      <a class="logo"><span class="logo-lg"><b>Chicago</b>Energy</span></a>
 
       <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
           <!-- Control Sidebar Toggle Button -->
           <li>
+            <a href="/about.html">About</a>
             <!--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>-->
           </li>
         </ul>
@@ -58,12 +59,12 @@
       <!-- Main row -->
       <div class="row">
         <!-- Left col -->
-        <section class="col-lg-7 connectedSortable">
+        <section class="col-lg-8 connectedSortable">
 
           <div class="row">
             <div class="col-lg-12 col-md-12 col-xs-12 info-box">
               <div class="row">
-                <div class="col-lg-1 col-md-1 col-xs-1 bg-black cube" id="temp_button"></div>
+                
                 <div class="col-lg-11 col-md-11 col-xs-11">
                   <div id="area_details" class="area_details_container"></div>
                 </div>
@@ -76,6 +77,18 @@
 
             <!-- Custom tabs (Charts with tabs)-->
             <section class="col-lg-3">
+
+              <div class="nav-tabs-custom">
+                <!-- Tabs within a box -->
+                <ul class="nav nav-tabs pull-right">
+                  <li id="community-buildings" class="pull-left header">Building in Near West Side</li>
+                </ul>
+                <div class="tab-content no-padding">
+                  <!-- Charts for Community Area -->
+                  <div id="selected-word-cloud"></div>
+                </div>
+              </div>
+
               <div class="nav-tabs-custom">
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs pull-right">
@@ -109,16 +122,6 @@
                 </div>
               </div>
 
-              <div class="nav-tabs-custom">
-                <!-- Tabs within a box -->
-                <ul class="nav nav-tabs pull-right">
-                  <li id="community-buildings" class="pull-left header">Building in Near West Side</li>
-                </ul>
-                <div class="tab-content no-padding">
-                  <!-- Charts for Community Area -->
-                  <div id="selected-word-cloud"></div>
-                </div>
-              </div>
             </section>
 
             <section class="col-lg-9" style="padding-right: 0px;">
@@ -154,8 +157,14 @@
                       <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-energy">electricity<span class="caret"></span>
                         </button>
                       <ul class="dropdown-menu dd-energy">
-                        <li><a href="#">electricity</a></li>
-                          <li><a href="#">gas</a></li>
+                        <li><a href="#">electricity (total)</a></li>
+                        <li><a href="#">gas (total)</a></li>
+                        <li><a href="#">kwh sqft</a></li>
+                        <li><a href="#">thm sqft</a></li>
+                        <li><a href="#">kwh sqmt</a></li>
+                        <li><a href="#">thm sqmt</a></li>
+                        <li><a href="#">electricity per capita</a></li>
+                        <li><a href="#">gas per capita</a></li>
                       </ul>
                     </div>
                   </li>
@@ -175,13 +184,11 @@
         </section>
         <!-- /.Left col -->
         <!-- right col (We are only adding the ID to make the widgets sortable)-->
-        <section class="col-lg-5 connectedSortable">
+        <section class="col-lg-4 connectedSortable">
 
           <!-- Map box -->
           <div class="box box-solid bg-white">
-            <div class="box-header">
-
-                       
+            <div class="box-header box-header-top">
 
               <!-- tools box -->
               <div class="pull-right box-tools">
@@ -216,20 +223,25 @@
                   </ul>
                 </div>  
 
-                <span class="chart-filter">Data:</span>
+                <span class="chart-filter">Marker Size:</span>
                 <div class="btn-group">
                   <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scatterplot-r">population<span class="caret"></span>
                     </button>
                   <ul class="dropdown-menu dd-scatterplot-r">
-                    <li><a href="#">population</a></li>
+                      <li class="filter-value"><a href="#">population</a></li>
                       <li class="filter-value"><a href="#">total units</a></li>
                       <li class="filter-value"><a href="#">occupied units</a></li>
                       <li class="filter-value"><a href="#">percentage occupied units</a></li>
                       <li class="filter-value"><a href="#">occupied housing units</a></li>
                       <li class="filter-value"><a href="#">renter occupied housing units</a></li>
                   </ul>
-                </div>
+                </div>               
 
+              </div>
+              <!-- /. tools -->
+            </div>
+            <div class="box-header box-header-top">
+              <div class="pull-right box-tools">
                 <span class="chart-filter">Detail:</span>
                 <div class="btn-group">
                   <button type="button" class="btn btn-default btn-xs dropdown-toggle filter-value" data-toggle="dropdown" id="dd-scatterplot-detail">community areas<span class="caret"></span>
@@ -249,16 +261,10 @@
                     <li class="filter-value"><a href="#">real</a></li>
                     <li class="filter-value"><a href="#">log</a></li>
                   </ul>
-                </div>                
-
-              </div>
-              <!-- /. tools -->
-
-
-              <h3 class="box-title">
-                
-              </h3>
+                </div>                 
+              </div>              
             </div>
+
             <div class="box-body content-right">
               <div id="scatterplot"></div>
             </div>
@@ -276,6 +282,7 @@
                 <!--
                 <button type="button" class="btn bg-teal btn-sm" data-widget="collapse"><i class="fa fa-minus"></i>
                 </button>-->
+                <!--
                 <div class="btn-group">
                   <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" id="dd-comparison">community areas
                     <span class="caret"></span></button>
@@ -284,14 +291,15 @@
                       <li><a href="#">census tracts</a></li>
                       <li><a href="#">census blocks</a></li>
                     </ul>
-                </div>                   
+                </div> -->                  
               </div>
             </div>
             <div class="box-body border-radius-none comparison-charts">
               <div class="row">
                 <div class="col-lg-4">
                   <div id="linechart-comparison-list">
-                    <ul class="list-group" id="compare-list-group"></ul>
+                    <ul class="list-group" id="compare-list-group">
+                    </ul>
                   </div>
                 </div>
                 <div class="col-lg-8">

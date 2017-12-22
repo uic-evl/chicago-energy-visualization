@@ -11,6 +11,7 @@ function Comparison(controller, container_electricity, container_gas) {
 	this.communities = [];
 	this.census_tracts = [];
 	this.census_blocks = [];
+	this.colors = ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3"];
 
 	this.showing = "COMMUNITY_AREAS";
 }
@@ -32,22 +33,53 @@ Comparison.prototype = {
 		this.linechart_gas.init();
 	},
 
+	buildList: function() {
+		$("#compare-list-group").children().remove();
+		this.addListItem("COMMUNITY_AREAS");
+		this.addListItem("CENSUS_TRACTS");
+		this.addListItem("CENSUS_BLOCKS");
+	},
+
 	addListItem: function(type) {
 		let self = this;
-		$("#compare-list-group").children().remove();
 		let group = $("#compare-list-group")
 
 		let data = this.communities;
-		if (self.showing == "CENSUS_TRACTS") data = this.census_tracts;
-		else if (self.showing == "CENSUS_BLOCKS") data = this.census_blocks;		
+		let title = "Community areas";
+		if (type == "CENSUS_TRACTS") { 
+			data = this.census_tracts;
+			title = "Census tracts";
+		} else if (type == "CENSUS_BLOCKS") { 
+			data = this.census_blocks;
+			title = "Census blocks";		
+		}
 
 		let name = "";
+		let title_id = "lgi-" + type;
+
+		if (self.showing == type)
+			group.append('<li id="' + title_id +'" class="list-group-item active list-group-item-title"><b>' + title + '</b></li>');
+		else 
+			group.append('<li id="' + title_id +'" class="list-group-item list-group-item-title"><b>' + title + '</b></li>');
+		
+		$("#" + title_id).click(() => {
+			self.update(type);
+		});
+
 		for (let i = 0; i < data.length; i++){
-			if (self.showing == "CENSUS_BLOCKS")
+			if (type == "CENSUS_BLOCKS")
 				name = data[i].id.substring(11, 15);
+			else if (type == "CENSUS_TRACTS")
+				name = data[i].name.substring(0, data[i].name.length - 2);
 			else name = data[i].name;
 
-			group.append("<li class='list-group-item d-flex justify-content-between align-items-center'>" + name + 
+			if (data[i].belongs_to != null && data[i].belongs_to != undefined){
+				name = '<span>' + data[i].initials + '</span>: ' + name;
+				tooltip = data[i].belongs_to;
+			} else
+				tooltip = data[i].name;
+
+			group.append("<li class='list-group-item d-flex justify-content-between align-items-center' title='"+ tooltip + "' >" + name + 
 				"<span class='badge'><i class='fa fa-trash-o' aria-hidden='true'></i></span></li>");
 			$(group).children().last().children().last().click(() => {
 				self.delete(i, type);
@@ -60,6 +92,10 @@ Comparison.prototype = {
 				self.linechart_electricity.resetHighlight();
 				self.linechart_gas.resetHighlight();
 			});
+			$(group).children().last().css("background-color", () => {
+				let index = i % self.colors.length;
+				return self.colors[index];
+			});
 		}
 	},
 
@@ -70,21 +106,21 @@ Comparison.prototype = {
 				this.empty = true;
 				$("#compare-list-group").children().remove();
 			} else
-				this.addListItem("COMMUNITY_AREAS");
+				this.buildList();
 		} else if (type == "CENSUS_TRACTS") {
 			this.census_tracts.splice(pos, 1);
 			if (this.census_tracts.length == 0){
 				this.empty = true;
 				$("#compare-list-group").children().remove();
 			} else
-				this.addListItem("CENSUS_TRACTS");
+				this.buildList();
 		} else {
 			this.census_blocks.splice(pos, 1);
 			if (this.census_blocks.length == 0){
 				this.empty = true;
 				$("#compare-list-group").children().remove();
 			} else
-				this.addListItem("CENSUS_BLOCKS");
+				this.buildList();
 		}
 
 		this.linechart_electricity.data.splice(pos, 1);
@@ -94,7 +130,7 @@ Comparison.prototype = {
 		
 	},
 
-	add: function(id, name, electricity, gas, type) {
+	add: function(id, name, electricity, gas, type, community_name) {
 
 		let self = this;
 		let exists = false;
@@ -103,8 +139,12 @@ Comparison.prototype = {
 				id: id,
 				name:name,
 				electricity: electricity,
-				gas: gas
+				gas: gas,
+				belongs_to: community_name,
+				initials: null
 			};
+		if (community.belongs_to != null && community.belongs_to != undefined)
+			community.initials = Array.prototype.map.call(community_name.split(" "), function(x){ return x.substring(0,1).toUpperCase();}).join('');
 
 		if (type == "COMMUNITY_AREAS"){
 			exists = self.included(id, "COMMUNITY_AREAS"); 
@@ -121,7 +161,7 @@ Comparison.prototype = {
 		}
 
 		if (!exists && type == self.showing) {
-			self.addListItem(type);
+			this.buildList();
 
 			if (self.isEmpty()){
 				self.init(community.id, community.electricity, community.gas);
@@ -153,12 +193,18 @@ Comparison.prototype = {
 	update: function(type){
 
 		this.showing = type;
-		this.linechart_electricity.data = [];
-		this.linechart_gas.data = [];
-
+		
 		let data = this.communities;
 		if (type == "CENSUS_TRACTS") data = this.census_tracts;
 		else if (type == "CENSUS_BLOCKS") data = this.census_blocks;
+
+		if (this.linechart_electricity == null){
+			this.linechart_electricity = new LineChart(this.container_electricity, "electricity", null, null);
+			this.linechart_gas = new LineChart(this.container_gas, "gas", null, null);
+		}
+
+		this.linechart_electricity.data = [];
+		this.linechart_gas.data = [];
 
 		for (let i = 0; i < data.length; i++){
 			this.linechart_electricity.addDataItem(data[i].id, data[i].electricity);
@@ -167,7 +213,7 @@ Comparison.prototype = {
 
 		this.linechart_electricity.init();
 		this.linechart_gas.init();
-		this.addListItem(type);
+		this.buildList();
 
 	}
 

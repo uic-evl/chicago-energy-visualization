@@ -15,7 +15,8 @@ function EnergyMap(container_id, controller, type, default_selection){
 	this.map = null;	// Leaflet map
 	this.minimap = null;
 	this.parent = null;			// Access to the object that contains minimap
-	this.center = {'lat': 41.8500300, 'lng': -87.60};
+	//this.center = {'lat': 41.8500350, 'lng': -87.60};
+	this.center = {'lat': 41.8500350, 'lng': -87.66};
 	this.zoomLevel = 11;
 	this.selectedLayer = null;
 	this.preHighlightColor = null;
@@ -27,7 +28,7 @@ function EnergyMap(container_id, controller, type, default_selection){
 	this.scale = null;
 
 	this.filters = {
-		data2display: "electricity",
+		data2display: "TOTAL_KWH",
 		detail: "census_tracts",
 		scale: "real"
 	};
@@ -55,6 +56,8 @@ function EnergyMap(container_id, controller, type, default_selection){
 		    'redBlackGreen': ['#ff0000', '#AA0000', '#550000', '#005500', '#00AA00', '#00ff00'],
 		    'viridis': ["#440154","#440256","#450457","#450559","#46075a","#46085c","#460a5d","#460b5e","#470d60","#470e61","#471063","#471164","#471365","#481467","#481668","#481769","#48186a","#481a6c","#481b6d","#481c6e","#481d6f","#481f70","#482071","#482173","#482374","#482475","#482576","#482677","#482878","#482979","#472a7a","#472c7a","#472d7b","#472e7c","#472f7d","#46307e","#46327e","#46337f","#463480","#453581","#453781","#453882","#443983","#443a83","#443b84","#433d84","#433e85","#423f85","#424086","#424186","#414287","#414487","#404588","#404688","#3f4788","#3f4889","#3e4989","#3e4a89","#3e4c8a","#3d4d8a","#3d4e8a","#3c4f8a","#3c508b","#3b518b","#3b528b","#3a538b","#3a548c","#39558c","#39568c","#38588c","#38598c","#375a8c","#375b8d","#365c8d","#365d8d","#355e8d","#355f8d","#34608d","#34618d","#33628d","#33638d","#32648e","#32658e","#31668e","#31678e","#31688e","#30698e","#306a8e","#2f6b8e","#2f6c8e","#2e6d8e","#2e6e8e","#2e6f8e","#2d708e","#2d718e","#2c718e","#2c728e","#2c738e","#2b748e","#2b758e","#2a768e","#2a778e","#2a788e","#29798e","#297a8e","#297b8e","#287c8e","#287d8e","#277e8e","#277f8e","#27808e","#26818e","#26828e","#26828e","#25838e","#25848e","#25858e","#24868e","#24878e","#23888e","#23898e","#238a8d","#228b8d","#228c8d","#228d8d","#218e8d","#218f8d","#21908d","#21918c","#20928c","#20928c","#20938c","#1f948c","#1f958b","#1f968b","#1f978b","#1f988b","#1f998a","#1f9a8a","#1e9b8a","#1e9c89","#1e9d89","#1f9e89","#1f9f88","#1fa088","#1fa188","#1fa187","#1fa287","#20a386","#20a486","#21a585","#21a685","#22a785","#22a884","#23a983","#24aa83","#25ab82","#25ac82","#26ad81","#27ad81","#28ae80","#29af7f","#2ab07f","#2cb17e","#2db27d","#2eb37c","#2fb47c","#31b57b","#32b67a","#34b679","#35b779","#37b878","#38b977","#3aba76","#3bbb75","#3dbc74","#3fbc73","#40bd72","#42be71","#44bf70","#46c06f","#48c16e","#4ac16d","#4cc26c","#4ec36b","#50c46a","#52c569","#54c568","#56c667","#58c765","#5ac864","#5cc863","#5ec962","#60ca60","#63cb5f","#65cb5e","#67cc5c","#69cd5b","#6ccd5a","#6ece58","#70cf57","#73d056","#75d054","#77d153","#7ad151","#7cd250","#7fd34e","#81d34d","#84d44b","#86d549","#89d548","#8bd646","#8ed645","#90d743","#93d741","#95d840","#98d83e","#9bd93c","#9dd93b","#a0da39","#a2da37","#a5db36","#a8db34","#aadc32","#addc30","#b0dd2f","#b2dd2d","#b5de2b","#b8de29","#bade28","#bddf26","#c0df25","#c2df23","#c5e021","#c8e020","#cae11f","#cde11d","#d0e11c","#d2e21b","#d5e21a","#d8e219","#dae319","#dde318","#dfe318","#e2e418","#e5e419","#e7e419","#eae51a","#ece51b","#efe51c","#f1e51d","#f4e61e","#f6e620","#f8e621","#fbe723","#fde725"]
 		};
+
+	this.initial_load = true;
 };
 
 EnergyMap.prototype = {
@@ -88,10 +91,17 @@ EnergyMap.prototype = {
 	          					'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
 	          					'Imagery © <a href="http://mapbox.com">Mapbox</a>';
 	      	
-	        if (self.type == "overview")
+	        if (self.type == "overview"){
 	        	osmAttrib = "";	
-	        else
+	        	if ($("#" + self.container_id).width() > 440)
+	        		self.zoomLevel = 11;
+	        	else
+	        		self.zoomLevel = 9;
+	        }
+	        else{
 	        	self.zoomLevel = 4;
+	        	self.initial_load = false;
+	        }
 	        
 	      	let osm = new L.TileLayer(osmUrl,
 	          {   
@@ -114,6 +124,9 @@ EnergyMap.prototype = {
 		let self = this;
 		self.setLegendValues(data);
 
+		if (self.geoJsonLayer != null)
+			self.geoJsonLayer.clearLayers();
+
 		self.geoJsonLayer = L.geoJSON(data.data, {
 				style: function(feature){ return self.setGeoJSONStyle(feature);},
 				onEachFeature: function(feature, layer) { 
@@ -122,8 +135,12 @@ EnergyMap.prototype = {
 			}).addTo(self.map);
 		self.createLegend2();
 
-		let bounds = self.geoJsonLayer.getBounds();
-		self.map.fitBounds(bounds);
+		if (!self.initial_load){
+			let bounds = self.geoJsonLayer.getBounds();
+			self.map.fitBounds(bounds);
+		} else {
+			self.initial_load = false;
+		}
 
 		if (self.default_selection) {
 			self.selectLayer(self.getLayerByName(self.default_selection));
@@ -139,31 +156,52 @@ EnergyMap.prototype = {
 
 	onEachFeature: function(feature, layer){
 		let self = this,
-			f = d3.format(",");
+			f = d3.format(","),
+			f2 = d3.format(",.2f"),
+			details = "";
 
 		if (self.type == "detail"){
 			if (feature.properties) {
-				let details = "<div><span class='popup-label'>Area number: </span><span class='popup-value'>" + feature.properties.name10 + "</span></div>" +
-							  "<div><span class='popup-label'>Electricity: </span><span class='popup-value'>" + f(feature.properties.TOTAL_KWH) + " kWh</span></div>" +
-							  "<div><span class='popup-label'>Gas: </span><span class='popup-value'>" + f(feature.properties.TOTAL_THERMS) + " thm</span></div>" +
+
+				if (feature.properties.ANONYMOUS != null && feature.properties.ANONYMOUS == true)
+					details = "<div><span class='popup-label'>Area number: </span><span class='popup-value'>" + feature.properties.name10 + "</span></div>" +
+							  "<div><span class='popup-label'>Data not available</span></div>";
+				else
+					details = "<div><span class='popup-label'>Area number: </span><span class='popup-value'>" + feature.properties.name10 + "</span></div><hr/>" +
+							  "<div><span class='popup-label'>Electricity: </span><span class='popup-value'>" + getDisplayValue(feature.properties.TOTAL_KWH, f) + " kWh</span></div>" +
+							  "<div><span class='popup-label'>Gas: </span><span class='popup-value'>" + getDisplayValue(feature.properties.TOTAL_THERMS, f) + " thm</span></div><hr/>" +
 							  "<div><span class='popup-label'>Population: </span><span class='popup-value'>" + f(feature.properties.POPULATION) + "</span></div>" +
 							  "<div><span class='popup-label'>Total Units: </span><span class='popup-value'>" + f(feature.properties.TOTAL_UNITS) + "</span></div>" +
-							  "<div><span class='popup-label'>Occupied Units: </span><span class='popup-value'>" + f(feature.properties.OCCUPIED_HOUSING_UNITS) + "</span></div>" +
-							  "<div><span class='popup-label'>kWh sqft: </span><span class='popup-value'>" + f(feature.properties.KWH_TOTAL_SQFT) + "</span></div>" +
-							  "<div><span class='popup-label'>thm sqft: </span><span class='popup-value'>" + f(feature.properties.THERMS_TOTAL_SQFT) + "</span></div>" +
-							  "<div><span class='popup-label'>community: </span><span class='popup-value'>" + feature.properties.COMMUNITY_AREA_ID + "</span></div>" + 
-							  "<div class='button-add'><span><i class='fa fa-plus-circle' aria-hidden='true'></i></span></div>"
-
-				
-        		layer.bindPopup(details);
+							  "<div><span class='popup-label'>Occupied Units: </span><span class='popup-value'>" + f(feature.properties.OCCUPIED_HOUSING_UNITS) + "</span></div><hr/>" +
+							  "<div><span class='popup-label'>kWh sqft: </span><span class='popup-value'>" + getDisplayValue(feature.properties.KWH_TOTAL_SQFT, f2) + "</span></div>" +
+							  "<div><span class='popup-label'>thm sqft: </span><span class='popup-value'>" + getDisplayValue(feature.properties.THERMS_TOTAL_SQFT, f2) + "</span></div><hr/>" +
+							  "<div><span class='popup-label'>kWh m2: </span><span class='popup-value'>" + getDisplayValue(feature.properties.KWH_TOTAL_SQMETERS, f2) + "</span></div>" +
+							  "<div><span class='popup-label'>thm m2: </span><span class='popup-value'>" + getDisplayValue(feature.properties.THERMS_TOTAL_SQMETERS, f2) + "</span></div><hr/>" +
+							  "<div><span class='popup-label'>kWh per capita: </span><span class='popup-value'>" + getDisplayValue(feature.properties.KWH_TOTAL_CAPITA, f2) + "</span></div>" +
+							  "<div><span class='popup-label'>thm per capita: </span><span class='popup-value'>" + getDisplayValue(feature.properties.THERMS_TOTAL_CAPITA, f2) + "</span></div><br/>" +
+							  "<div><button type='button' class='btn btn-primary btn-sm button-add'>Add to comparison</button></div>";
+							  //"<div class='button-add'><span><i class='fa fa-plus-circle' aria-hidden='true'></i></span></div>";
+							  //"<div><span class='popup-label'>community: </span><span class='popup-value'>" + feature.properties.COMMUNITY_AREA_ID + "</span></div><br/>" 
     		}
+		} else {
+			details = "<div><span class='popup-label'>" + feature.properties.community + "</span></div><br/>" +
+					   "<div><button type='button' class='btn btn-primary btn-sm button-add-area'>Add to comparison</button></div>";
 		}
+		layer.bindPopup(details);
     	
 		layer.on({
 			click: function(e){self.whenClicked(e);}, 
 			mouseover: function(e){self.highlightFeature(e.target);},
 			mouseout: function(e){self.resetHighlight(e.target);}
 		});
+
+		function getDisplayValue(num, fmt) {
+			if (isNaN(num) || num == -1)
+				return "N/A";
+			else {
+				return fmt(num);
+			}
+		}
 	},
 
 	whenClicked: function(e){
@@ -179,8 +217,16 @@ EnergyMap.prototype = {
 					id = layer.feature.properties.geoid10;
 				self.controller.addComparisonData(self.filters.detail.toUpperCase(), id);
 			});
-		} 
-		else this.selectLayer(layer);
+
+		} else {
+			$(".button-add-area").on("click", () => {
+				let id = layer.feature.properties.area_numbe;
+				self.controller.addComparisonData("COMMUNITY_AREAS", id);
+			});
+
+			this.selectLayer(layer);
+			this.parent.selectedLayer = null;
+		}
 	},
 
 	getLayerId: function(layerName) {
@@ -276,33 +322,72 @@ EnergyMap.prototype = {
 	setLegendValues: function(data){
 
 		let self = this;
-		if (self.filters.scale == 'real'){
-			self.legend.min = data[self.filters.data2display].min;
-			self.legend.max = data[self.filters.data2display].max;
-			self.legend.avg = data[self.filters.data2display].avg;
+		let total_population = 0;
+		let filter = self.filters.data2display;
+
+		if (self.filters.data2display.includes("capita")){
+			let min = Number.MAX_VALUE;
+			let max = 0;
+
+			if (filter.includes("gas")) filter = "TOTAL_THERMS";
+			else if (filter.includes("electricity")) filter = "TOTAL_KWH";
+
+			let val;
+			for (let i = 0; i < data.data.length; i++){
+				if (data.data[i].properties.POPULATION > 0)
+					val = data.data[i].properties[filter] / data.data[i].properties.POPULATION;
+				else
+					val = 0;
+				if (val > max) max = val;
+				if (val < min) min = val;
+			}
+
+			self.legend.min = min;
+			self.legend.max = max;
+			self.legend.avg = 0;
+
+			if (self.filters.scale != "real"){
+				self.legend.min = Math.log(self.legend.min);
+				self.legend.max = Math.log(self.legend.max);
+			}
+
 		} else {
-			self.legend.min = Math.log(data[self.filters.data2display].min);
-			self.legend.max = Math.log(data[self.filters.data2display].max);
-			self.legend.avg = Math.log(data[self.filters.data2display].avg);	
-		};
+			if (self.filters.scale == 'real'){
+				self.legend.min = data[filter].min;
+				self.legend.max = data[filter].max;
+				self.legend.avg = data[filter].avg;
+			} else {
+				self.legend.min = Math.log(data[filter].min);
+				self.legend.max = Math.log(data[filter].max);
+				self.legend.avg = Math.log(data[filter].avg);	
+			};
+		}		
+		
+		
 		self.createScale();
+
+
 	},
 
 	setGeoJSONStyle: function(feature){
 		let self = this,
-			field = 'TOTAL_KWH';
-		if (self.filters.data2display == 'gas') field = 'TOTAL_THERMS';
+			field = self.filters.data2display;
+		if (field == "electricity") field = "TOTAL_KWH";
+		else if (field == "gas") field = "TOTAL_THERMS";
 
 		let anonymous = feature.properties["ANONYMOUS"];
 		let value = feature.properties[field];
+		if (self.filters.data2display.includes('capita'))
+			value = value / feature.properties.POPULATION;
+
 		if (anonymous)	// data was aggregated
-			return { color: "grey", fillOpacity: 0.6 };
+			return { color: "grey", fillOpacity: 0.6, className: "map-area" };
 		else {
 			if (self.filters.scale == "logarithmic")
 			value = Math.log(value);
 
 			let color = self.scale(value);
-			return { color: color, fillOpacity: 0.6 };
+			return { color: color, fillOpacity: 0.6, className: "map-area" };
 		}
 		
 	},
@@ -431,7 +516,7 @@ EnergyMap.prototype = {
                 .attr("fill", function (d) { return self.scale(d)})
                 .attr("stroke-width", 0);
 
-        var f = d3.format(".2s");
+        var f = d3.format(",.2f");
         svg.append("text")
             .text(function() { return f((self.legend.max));})
             .style("text-anchor", "start")
@@ -447,11 +532,34 @@ EnergyMap.prototype = {
 	createLegend2: function() {
 
 		let self = this;
-		let w = 60,
-			h = 200;
+		let w, h, rec_width, translate_rects;
+
+		if (self.type == "detail") {
+			if ($("#" + self.container_id).width() > 1000){
+				w = 180;
+				h = 380;
+				rec_width = 40;
+				translate_rects = "translate(100,10)";
+			} else {
+				w = 60;
+				h = 200;
+				rec_width = 40;
+				translate_rects = "translate(40,10)";
+			}
+		}
+
 		if (self.type == "overview"){
-			h = 120;
-			w = 60;
+			if ($("#" + self.container_id).width() > 220) {
+				h = 180;
+				w = 80;
+				rec_width = 20;
+				translate_rects = "translate(60,10)";
+			} else {
+				h = 120;
+				w = 60;
+				rec_width = 12;
+				translate_rects = "translate(35,10)";
+			}
 		}
 
 		d3.select("#" + self.legend_id).select("svg").remove();
@@ -481,22 +589,26 @@ EnergyMap.prototype = {
         });
 
 	    svg.append("rect")
-	      .attr("width", 20)
+	      .attr("width", rec_width)
 	      .attr("height", h - 20)
 	      .style("fill", "url(#gradient)")
-	      .attr("transform", "translate(40,10)");
+	      .attr("transform", translate_rects);
 
-	    let y = d3.scaleLinear().range([180, 0]);
+	    let y = d3.scaleLinear().range([h - 20, 0]);
 	    y.domain([self.legend.min, self.legend.max]).nice();
 	    		
 	    var legendAxis = d3.axisLeft(y)
             .tickFormat(d3.format(".2s"));
 
         svg.append("g")
-            .attr("class", "legend axis")
-            .attr("transform", "translate(40, 10)")
+            .attr("class", "legend axis legend-axis")
+            .attr("transform", translate_rects)
             .call(legendAxis);
 
+        if (self.type == "detail")
+        	svg.selectAll("text").classed("legend-text", true);
+        else 
+        	svg.selectAll("text").classed("legend-text-overview", true);
 	},
 
 	linspace: function(start, end, n){
@@ -557,7 +669,6 @@ EnergyMap.prototype = {
 		for (let key in layers)
 			if (layers[key].feature && (layers[key].feature.properties.community == name || layers[key].feature.properties.name10 == name))
 				return layers[key];
-		console.log('null');
 		return null;
 	},
 
@@ -567,7 +678,6 @@ EnergyMap.prototype = {
 		for (let key in layers)
 			if (layers[key].feature && layers[key].feature.properties.geoid10 == geoid)
 				return layers[key];
-		console.log('null');
 		return null;
 	},
 
@@ -577,7 +687,6 @@ EnergyMap.prototype = {
 		for (let key in layers)
 			if (layers[key].feature && layers[key].feature.properties.area_numbe == id)
 				return layers[key];
-		console.log('null');
 		return null;
 	}
 };

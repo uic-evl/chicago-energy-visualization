@@ -1,11 +1,11 @@
-function Histogram(container, controller, data, title) {
+function Histogram(container, controller, data, title, community) {
 
 	this.container = "#" + container;
 	this.controller = controller;
 	this.data = data;
 
 	this.svg = null;
-    this.margin = { top: 10, right: 30, bottom: 50, left: 40 };
+    this.margin = { top: 10, right: 30, bottom: 30, left: 20 };
     this.height = 0;
     this.width = 0;
 
@@ -14,6 +14,8 @@ function Histogram(container, controller, data, title) {
     this.bins = null;
 
     this.title = title;
+    this.tooltip = null;
+    this.community = community;
 
 }
 
@@ -33,9 +35,10 @@ Histogram.prototype = {
             .append("g")
             .attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
 
+        let max = d3.max(self.data, d => d);
         self.x = d3.scaleLinear()
         	.range([0, self.width])
-        	.domain([0, d3.max(self.data, d => d)]);
+        	.domain([0, max]);
         
         self.bins = d3.histogram()
         				.domain(self.x.domain())
@@ -72,12 +75,17 @@ Histogram.prototype = {
 		    .attr("transform", "translate(0," + (self.height) + ")")
 		    .call(d3.axisBottom(self.x)
 		    		.ticks(5)
+		    		.tickValues([0, max])
 		    		.tickFormat(d3.formatPrefix(".1", 1e6)));
 
 		self.svg.append("text")
             .attr("class", "histogram-title")
-			.attr("transform", "translate(" + self.width/2 + " ," + (self.height + 30)  + ")")
+			.attr("transform", "translate(" + self.width/2 + " ," + (self.height + 15)  + ")")
             .text(self.title);
+
+        this.tooltip = d3.select(this.container).append("div")
+            .attr("class", "tooltip-histogram")
+            .style("opacity", 0);
 
 	},
 
@@ -96,5 +104,16 @@ Histogram.prototype = {
 			.attr("y1", self.height)
 			.attr("x2", self.x(value))
 			.attr("y2", 0);
+
+		self.svg.selectAll(".histogram-community-label").remove();
+		self.svg.append("text")
+			.text(self.community)
+			.attr("class", "histogram-community-label")
+			.attr("transform", "translate(" + self.x(value) + ", " + self.margin.top + ")")
+			.attr("text-anchor", function() {
+				if (self.x(value) > 3*self.width/4)
+					return "end";
+				else return "start";
+			});
 	}
 }

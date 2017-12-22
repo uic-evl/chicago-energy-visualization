@@ -26,43 +26,8 @@ app.use("/js", express.static(__dirname + '/../public/js'));
 
 app.get('/geoareas', (req, res) => {
 	GeoArea.find().then((areas) => {
-		var response = {
-			data: areas,
-			gas: {
-				min: 0,
-				max: 0,
-				avg: 0
-			},
-			electricity: {
-				min: 0,
-				max: 0,
-				avg: 0
-			}
-		};
-
-		areas.forEach((area) => {
-			console.log(area.properties.area_num_1);
-			CommunityBuildings.findOne({'ID': area.properties.area_num_1}).then((buildings) => {
-				if (!buildings) console.log(area.properties.area_num_1);
-				else
-					area.properties['buildings'] = buildings;
-			});
-		});
-
-		Utils.find().then((utils) => {
-			if (utils && utils.length > 0){
-				response.gas.max = utils[0].community_areas.gas.max;
-				response.gas.min = utils[0].community_areas.gas.min;
-				response.gas.avg = utils[0].community_areas.gas.avg;
-				response.electricity.max = utils[0].community_areas.electricity.max;
-				response.electricity.min = utils[0].community_areas.electricity.min;
-				response.electricity.avg = utils[0].community_areas.electricity.avg;
-			}
-
-			res.send(response);			
-		}, (e) => {
-			res.status(404).send(e);
-		});
+		var response = getResponse(areas);
+		res.send(response);
 	}, (e) => {
 		res.status(404).send(e);
 	})
@@ -123,54 +88,7 @@ app.get('/geotracts/:community_number', (req, res) => {
 	GeoTract.find({ 'properties.commarea': community_number }).then((geotracts) => {
 		if (!geotracts)
 			return res.status(404).send();
-
-		var response = {
-			data: geotracts,
-			gas: {
-				min: Number.MAX_VALUE,
-				max: 0,
-				avg: 0
-			},
-			electricity: {
-				min: Number.MAX_VALUE,
-				max: 0,
-				avg: 0
-			}
-		};
-
-		let sum_electricity = 0,
-			sum_gas = 0,
-			count_electricity = 0,
-			count_gas = 0,
-			count_no_electricity = 0,
-			count_no_gas = 0;
-
-		geotracts.forEach((geo_tract) => {
-			if (geo_tract.properties.TOTAL_KWH == -1)
-				count_no_electricity++; 
-			else {
-				count_electricity++;
-				sum_electricity += geo_tract.properties.TOTAL_KWH;
-				if (geo_tract.properties.TOTAL_KWH > response.electricity.max)
-					response.electricity.max = geo_tract.properties.TOTAL_KWH;
-				else if (geo_tract.properties.TOTAL_KWH < response.electricity.min)
-					response.electricity.min = geo_tract.properties.TOTAL_KWH;
-			}
-
-			if (geo_tract.properties.TOTAL_THERMS == -1)
-				count_no_gas++; 
-			else {
-				count_gas++;
-				sum_gas += geo_tract.properties.TOTAL_THERMS;
-				if (geo_tract.properties.TOTAL_THERMS > response.gas.max)
-					response.gas.max = geo_tract.properties.TOTAL_THERMS;
-				else if (geo_tract.properties.TOTAL_THERMS < response.gas.min)
-					response.gas.min = geo_tract.properties.TOTAL_THERMS;
-			}
-		});
-
-		response.electricity.avg = sum_electricity / count_electricity;
-		response.gas.avg = sum_gas / count_gas;
+		var response = getResponse(geotracts);
 
 		res.send(response);
 	}, (e) => {
@@ -184,60 +102,108 @@ app.get('/geoblocks/:tract_number', (req, res) => {
 	GeoBlock.find({ 'properties.tractce10': tract_number }).then((geoblocks) => {
 		if (!geoblocks)
 			return res.status(404).send();
-
-		var response = {
-			data: geoblocks,
-			gas: {
-				min: Number.MAX_VALUE,
-				max: 0,
-				avg: 0
-			},
-			electricity: {
-				min: Number.MAX_VALUE,
-				max: 0,
-				avg: 0
-			}
-		};
-
-		let sum_electricity = 0,
-			sum_gas = 0,
-			count_electricity = 0,
-			count_gas = 0,
-			count_no_electricity = 0,
-			count_no_gas = 0;
-
-		geoblocks.forEach((geo_block) => {
-			if (geo_block.properties.TOTAL_KWH == -1)
-				count_no_electricity++; 
-			else {
-				count_electricity++;
-				sum_electricity += geo_block.properties.TOTAL_KWH;
-				if (geo_block.properties.TOTAL_KWH > response.electricity.max)
-					response.electricity.max = geo_block.properties.TOTAL_KWH;
-				else if (geo_block.properties.TOTAL_KWH < response.electricity.min)
-					response.electricity.min = geo_block.properties.TOTAL_KWH;
-			}
-
-			if (geo_block.properties.TOTAL_THERMS == -1)
-				count_no_gas++; 
-			else {
-				count_gas++;
-				sum_gas += geo_block.properties.TOTAL_THERMS;
-				if (geo_block.properties.TOTAL_THERMS > response.gas.max)
-					response.gas.max = geo_block.properties.TOTAL_THERMS;
-				else if (geo_block.properties.TOTAL_THERMS < response.gas.min)
-					response.gas.min = geo_block.properties.TOTAL_THERMS;
-			}
-		});
-
-		response.electricity.avg = sum_electricity / count_electricity;
-		response.gas.avg = sum_gas / count_gas;
-
+		var response = getResponse(geoblocks);
 		res.send(response);
 	}, (e) => {
 		res.status(404).send(e);
 	});
 });
+
+function getResponse(data){
+
+	var response = {
+		data: data,
+		TOTAL_THERMS: {
+			min: Number.MAX_VALUE,
+			max: 0
+		},
+		TOTAL_KWH: {
+			min: Number.MAX_VALUE,
+			max: 0
+		},
+		KWH_TOTAL_SQFT: {
+			min: Number.MAX_VALUE,
+			max: 0
+		},
+		THERMS_TOTAL_SQFT: {
+			min: Number.MAX_VALUE,
+			max: 0
+		},
+		KWH_TOTAL_SQMETERS: {
+			min: Number.MAX_VALUE,
+			max: 0
+		},
+		THERMS_TOTAL_SQMETERS: {
+			min: Number.MAX_VALUE,
+			max: 0
+		},
+		KWH_TOTAL_CAPITA: {
+			min: Number.MAX_VALUE,
+			max: 0
+		}, 
+		THERMS_TOTAL_CAPITA: {
+			min: Number.MAX_VALUE,
+			max: 0
+		}
+	};	
+
+	data.forEach((item) => {
+
+		let min_max = null;
+
+		//console.log(item.properties.TOTAL_KWH);
+		min_max = getMinMax(item.properties.TOTAL_KWH, response.TOTAL_KWH.min, response.TOTAL_KWH.max);
+		response.TOTAL_KWH.min = min_max[0];
+		response.TOTAL_KWH.max = min_max[1];
+
+		min_max = getMinMax(item.properties.TOTAL_THERMS, response.TOTAL_THERMS.min, response.TOTAL_THERMS.max);
+		response.TOTAL_THERMS.min = min_max[0];
+		response.TOTAL_THERMS.max = min_max[1];
+
+		min_max = getMinMax(item.properties.KWH_TOTAL_SQFT, response.KWH_TOTAL_SQFT.min, response.KWH_TOTAL_SQFT.max);
+		response.KWH_TOTAL_SQFT.min = min_max[0];
+		response.KWH_TOTAL_SQFT.max = min_max[1];
+
+		min_max = getMinMax(item.properties.THERMS_TOTAL_SQFT, response.THERMS_TOTAL_SQFT.min, response.THERMS_TOTAL_SQFT.max);
+		response.THERMS_TOTAL_SQFT.min = min_max[0];
+		response.THERMS_TOTAL_SQFT.max = min_max[1];
+
+		min_max = getMinMax(item.properties.KWH_TOTAL_SQMETERS, response.KWH_TOTAL_SQMETERS.min, response.KWH_TOTAL_SQMETERS.max);
+		response.KWH_TOTAL_SQMETERS.min = min_max[0];
+		response.KWH_TOTAL_SQMETERS.max = min_max[1];
+
+		min_max = getMinMax(item.properties.THERMS_TOTAL_SQMETERS, response.THERMS_TOTAL_SQMETERS.min, response.THERMS_TOTAL_SQMETERS.max);
+		response.THERMS_TOTAL_SQMETERS.min = min_max[0];
+		response.THERMS_TOTAL_SQMETERS.max = min_max[1];
+
+		min_max = getMinMax(item.properties.KWH_TOTAL_CAPITA, response.KWH_TOTAL_CAPITA.min, response.KWH_TOTAL_CAPITA.max);
+		response.KWH_TOTAL_CAPITA.min = min_max[0];
+		response.KWH_TOTAL_CAPITA.max = min_max[1];
+
+		min_max = getMinMax(item.properties.THERMS_TOTAL_CAPITA, response.THERMS_TOTAL_CAPITA.min, response.THERMS_TOTAL_CAPITA.max);
+		response.THERMS_TOTAL_CAPITA.min = min_max[0];
+		response.THERMS_TOTAL_CAPITA.max = min_max[1];
+
+	});
+
+	return response;
+
+}
+
+function getMinMax(value, min_val, max_val){
+	let response = [min_val, max_val];
+
+	//console.log(value, min_val, max_val);
+	if (value > -1) {
+		if (value > max_val)
+			max_val = value;
+		if (value < min_val)
+			min_val = value;
+		response = [min_val, max_val];
+		return response;
+	} else
+		return response;
+}
 
 app.get('/geoblocksByCommunity/:community_id', (req, res) => {
 	var community_id = req.params.community_id.toString();
@@ -246,52 +212,7 @@ app.get('/geoblocksByCommunity/:community_id', (req, res) => {
 		if (!geoblocks)
 			return res.status(404).send();
 
-		var response = {
-			data: geoblocks,
-			gas: {
-				min: Number.MAX_VALUE,
-				max: 0,
-				avg: 0
-			},
-			electricity: {
-				min: Number.MAX_VALUE,
-				max: 0,
-				avg: 0
-			}
-		};
-
-		let sum_electricity = 0,
-			sum_gas = 0,
-			count_electricity = 0,
-			count_gas = 0,
-			count_no_electricity = 0,
-			count_no_gas = 0;
-
-		geoblocks.forEach((geo_block) => {
-			if (geo_block.properties.ANONYMOUS == true){
-				count_no_electricity++; 
-				count_no_gas++;
-			}
-			else {
-				count_electricity++;
-				sum_electricity += geo_block.properties.TOTAL_KWH;
-				if (geo_block.properties.TOTAL_KWH > response.electricity.max)
-					response.electricity.max = geo_block.properties.TOTAL_KWH;
-				else if (geo_block.properties.TOTAL_KWH < response.electricity.min)
-					response.electricity.min = geo_block.properties.TOTAL_KWH;
-
-				count_gas++;
-				sum_gas += geo_block.properties.TOTAL_THERMS;
-				if (geo_block.properties.TOTAL_THERMS > response.gas.max)
-					response.gas.max = geo_block.properties.TOTAL_THERMS;
-				else if (geo_block.properties.TOTAL_THERMS < response.gas.min)
-					response.gas.min = geo_block.properties.TOTAL_THERMS;
-			}
-		});
-
-		response.electricity.avg = sum_electricity / count_electricity;
-		response.gas.avg = sum_gas / count_gas;
-
+		var response = getResponse(geoblocks);
 		res.send(response);
 	}, (e) => {
 		res.status(404).send(e);

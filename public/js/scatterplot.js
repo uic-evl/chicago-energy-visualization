@@ -30,6 +30,8 @@ ScatterPlot.prototype = {
         this.data = [];
         for (let i = 0; i < data.length; i++){
 
+            if (data[i].properties.ANONYMOUS) continue;
+
             let elem = {};
             elem.geoid10 = data[i].properties.geoid10;
             if (data[i].properties.TOTAL_KWH){
@@ -134,6 +136,11 @@ ScatterPlot.prototype = {
         if (y_name != null) self.y_name = y_name;
         if (r_name != null) self.radius_name = r_name;
 
+        self.axis.x.domain(d3.extent(self.data, function(d) { return d["LOG_" + self.x_name]; })).nice();
+        self.axis.y.domain(d3.extent(self.data, function(d) { return d["LOG_" + self.y_name]; })).nice();
+        self.axis.r.domain(d3.extent(self.data, function(d) { return d[self.radius_name]; })).nice();
+
+
         if (self.mode == "log"){
             self.axis.x.domain(d3.extent(self.data, function(d) { return d["LOG_" + self.x_name]; })).nice();
             self.axis.y.domain(d3.extent(self.data, function(d) { return d["LOG_" + self.y_name]; })).nice();
@@ -143,7 +150,6 @@ ScatterPlot.prototype = {
         }
 
         self.svg.selectAll(".dot")
-            .data(self.data)
             .transition()
             .duration(1000)
             .delay(function(d, i) {
@@ -190,7 +196,6 @@ ScatterPlot.prototype = {
                 .attr("y", -6)
                 .style("text-anchor", "end")
                 .style("color", "black")
-                .style("font", "10px sans-serif")
                 .text(self.x_name);
 
         d3.select(".scatter-y-text").remove();
@@ -202,7 +207,6 @@ ScatterPlot.prototype = {
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
                 .style("color", "black")
-                .style("font", "10px sans-serif")
                 .text(self.y_name);
     },
 
@@ -313,7 +317,11 @@ ScatterPlot.prototype = {
                 //var path = $(".p" + d.name.replace(/\s+/g, ""));
                 d3.select(".dot_selected").classed("dot_selected", false);
                 d3.select(this).classed("dot_selected", true);
-                self.controller.selectScatterplotItem(d.name);
+
+                if (self.level == "COMMUNITY_AREAS")
+                    self.controller.selectScatterplotItem(d.name);
+                else
+                    self.controller.selectScatterplotItem(d.geoid10);
             });
     },
 
@@ -335,15 +343,39 @@ ScatterPlot.prototype = {
 
     highlightElement: function(id) {
 
-        if (this.level == "COMMUNITY_AREAS")
-            d3.select("." + id.replace(/\s+/g, "")).classed("dot_hovered", true);
-        else
-            d3.select(".geo" + id).classed("dot_hovered", true);
+        
+        d3.selection.prototype.moveToFront = function() {
+          return this.each(function(){
+            this.parentNode.appendChild(this);
+          });
+        };
 
+        let selection = null;
+        if (this.level == "COMMUNITY_AREAS")
+            selection = d3.select("." + id.replace(/\s+/g, ""));
+        else
+            selection = d3.select(".geo" + id);
+        
+        if (selection){
+            selection.moveToFront();
+            selection.classed("dot_hovered", true); 
+        }
     },
 
     resetHighlight: function() {
-        d3.selectAll(".dot_hovered").classed("dot_hovered", false);
+
+        d3.selection.prototype.moveToBack = function() { 
+            return this.each(function() { 
+                var firstChild = this.parentNode.firstChild; 
+                if (firstChild) { 
+                    this.parentNode.insertBefore(this, firstChild); 
+                } 
+            });
+        }; 
+
+        let selection = d3.selectAll(".dot_hovered");
+        selection.moveToBack();
+        selection.classed("dot_hovered", false);
     },
 
     addSelectedElementStyle: function(id, sender) {
@@ -360,7 +392,6 @@ ScatterPlot.prototype = {
 
     update: function(data, level) {
         this.level = level;
-        console.log(level);
         d3.select(this.container).select("svg").remove();
         this.init(data);
     }

@@ -25,6 +25,7 @@ AreaDetails.prototype = {
 		//.2s
 		let self = this,
 			f = d3.format(","),
+			f2 = d3.format(",.2f"),
 			view_model = {
 				community: ko.observable(self.data.NAME),
 				electricity: ko.observable(f(self.data.TOTAL_KWH) + " kWh"),
@@ -33,7 +34,9 @@ AreaDetails.prototype = {
 				total_units: ko.observable(f(self.data.TOTAL_UNITS)),
 				occupied_units: ko.observable(f(self.data.OCCUPIED_UNITS)),
 				kwh_sqft: ko.observable(f(self.data.KWH_TOTAL_SQFT)),
-				therm_sqft: ko.observable(f(self.data.THERMS_TOTAL_SQFT))
+				therm_sqft: ko.observable(f(self.data.THERMS_TOTAL_SQFT)),
+				electricity_per_capita: ko.observable(f2(self.data.TOTAL_KWH/self.data.TOTAL_POPULATION)),
+				gas_per_capita: ko.observable(f2(self.data.TOTAL_THERMS/self.data.TOTAL_POPULATION))
 			}
 		return view_model;
 	},

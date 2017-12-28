@@ -10,7 +10,7 @@ MongoClient.connect('mongodb://localhost:27017/chicago_energy_2010', (err, db) =
 		return console.log('Unable to connect to MongoDB server.');
 	}
 	console.log('Connected to MongoDB Energy server');
-	updateCommunities2(db);
+	updateCommunities(db);
 });
 
 function updateCommunities(db){
@@ -26,7 +26,13 @@ function updateCommunities(db){
 	    db.collection('geo_areas').find({}).toArray().then((geo_areas) => {
 			geo_areas.forEach((geo_area) => {
 				var community_number = parseInt(geo_area.properties.area_num_1);
-				geo_area = getEnergyProperties(community_number, csvData, geo_area);
+				//geo_area = getEnergyProperties(community_number, csvData, geo_area);
+				for (let i = 0; i < csvData.length; i++) {
+					if (csvData[i][0] == community_number) {
+						geo_area.properties.AREA_ELECTRICITY = parseFloat(csvData[i][4]);
+						geo_area.properties.AREA_GAS = parseFloat(csvData[i][5]);
+					}
+				}
 				db.collection('geo_areas').save(geo_area);
 
 			});
@@ -51,7 +57,7 @@ function updateCommunities2(db){
 	    db.collection('community_areas_2').find({}).toArray().then((areas) => {
 			areas.forEach((area) => {
 				var community_number = parseInt(area.COMMUNITY_AREA_NUMBER);
-				area = getCommunityProperties(community_number, csvData, area);
+				//area = getCommunityProperties(community_number, csvData, area);
 				db.collection('community_areas_2').save(area);
 
 			});
@@ -148,7 +154,13 @@ function updateCensusTracts(db) {
 	    db.collection('geo_tracts').find({}).toArray().then((geo_tracts) => {
 			geo_tracts.forEach((geo_tract) => {
 				var number = "Census Tract " + geo_tract.properties.tractce10;
-				geo_tract = getTractProperties(number, csvData, geo_tract);
+				//geo_tract = getTractProperties(number, csvData, geo_tract);
+				for (let i = 0; i < csvData.length; i++) {
+					if (csvData[i][0] == number) {
+						geo_tract.properties.AREA_ELECTRICITY = parseFloat(csvData[i][3]);
+						geo_tract.properties.AREA_GAS = parseFloat(csvData[i][4]);
+					}
+				}
 				db.collection('geo_tracts').save(geo_tract);
 
 			});
@@ -220,7 +232,13 @@ function updateCensusBlocks(db) {
 	    db.collection('geo_blocks_4').find({}).toArray().then((geo_blocks) => {
 			geo_blocks.forEach((geo_block) => {
 				var geoid = geo_block.properties.geoid10;
-				geo_block = getBlockProperties(geoid, csvData, geo_block);
+				//geo_block = getBlockProperties(geoid, csvData, geo_block);
+				for (let i = 0; i < csvData.length; i++) {
+					if (csvData[i][0] == geoid) {
+						geo_block.properties.AREA_ELECTRICITY = parseFloat(csvData[i][3]);
+						geo_block.properties.AREA_GAS = parseFloat(csvData[i][4]);
+					}
+				}
 				db.collection('geo_blocks_4').save(geo_block);
 
 			});

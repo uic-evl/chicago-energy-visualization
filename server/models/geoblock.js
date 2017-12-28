@@ -34,7 +34,9 @@ var schema = new mongoose.Schema({
       type: Number
     },
     KWH_TOTAL_CAPITA: { type: Number },
-    THERMS_TOTAL_CAPITA: { type: Number }
+    THERMS_TOTAL_CAPITA: { type: Number },
+    AREA_ELECTRICITY: { type: Number },
+    AREA_GAS: { type: Number }
   },
   geometry: mongoose.Schema.Types.Geometry
 });

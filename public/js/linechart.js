@@ -32,10 +32,23 @@ function LineChart(container, energy, data, id){
     this.num_x_ticks = 7;
     this.num_y_ticks = 3;
     this.color = "red";
+    this.display = "energy"; // energy_per_sqft, energy_per_capita, energy_per_m2
 }
 
 LineChart.prototype = {
     constructor: LineChart,
+
+    getDisplayValue: function(value, area, population) {
+        let self = this;
+        if (self.display == "energy")
+            return value;
+        if (self.display == "energy_per_sqft")
+            return value / area;
+        if (self.display == "energy_per_capita")
+            return value / population;
+        if (self.display == "energy_per_m2")
+            return value / (area * 0.092903);
+    },
 
     init: function(){
         let self = this,
@@ -45,12 +58,16 @@ LineChart.prototype = {
         self.min = Number.MAX_VALUE;
         self.max = 0;
 
-        for (let i = 0; i < self.data.length; i++)
-            for (let j = 0; j < self.data[i].values.length; j++){
-                if (self.data[i].values[j].consumption > self.max)
-                    self.max = self.data[i].values[j].consumption;
-                if (self.data[i].values[j].consumption < self.min)
-                    self.min = self.data[i].values[j].consumption;
+        let dataset = self.data;
+
+        for (let i = 0; i < dataset.length; i++)
+            for (let j = 0; j < dataset[i].values.length; j++){
+                let val = self.getDisplayValue(dataset[i].values[j].consumption, 
+                                                dataset[i].area, dataset[i].population);
+                if (val > self.max)
+                    self.max = val;
+                if (val < self.min)
+                    self.min = val;
             }
 
         d3.select("#" + self.container).select("svg").remove();
@@ -101,15 +118,35 @@ LineChart.prototype = {
             .attr("class", function(d) {
                 return "line path-linechart line" + d.id; 
             })
-            .attr("d", function(d) { 
-                return line(d.values); })
+            .attr("d", function(d) {
+                let values = d.values;
+                if (self.display == "energy") 
+                    return line(values);
+                else {
+                    for (let i = 0; i < d.values.length; i++){
+                        values[i].consumption = self.getDisplayValue(values[i].consumption, d.area, d.population);
+                    }
+                    return line(values);
+                } 
+            })
             .style("stroke", (d, i) => {
                 let index = i % self.colors.length;
                 return self.colors[index];
             });
 
-        let consumption_unit = "electricity in kWh";
-        if (self.energy == "gas") consumption_unit = "gas in thm";
+        let energy_text = "electricity";
+        let consumption_unit = "";
+        if (self.energy == "gas") energy_text = "gas";
+
+        if (self.display == "energy"){
+            if (self.energy == "electricity")
+                consumption_unit = energy_text + " in kWh";
+            else
+                consumption_unit = energy_text + " in thm"
+        } 
+        else if (self.display == "energy_per_sqft") consumption_unit = energy_text + " per sqft";
+        else if (self.display == "energy_per_m2") consumption_unit = energy_text + " per m2";
+        else if (self.display == "energy_per_capita") consumption_unit = energy_text + " per capita";
 
         g.append("text")
             .attr("class", "label path-scatter linechart-y-text")
@@ -189,10 +226,12 @@ LineChart.prototype = {
         }
     },
 
-    addDataItem: function(id, item) {
+    addDataItem: function(id, item, area, population) {
 
         let elem = { values: [] };
         elem.id = id;
+        elem.area = area;
+        elem.population = population;
         for (let i = 0; i < 12; i++)
             elem.values.push({
                 'date': new Date(2010, i, 1),

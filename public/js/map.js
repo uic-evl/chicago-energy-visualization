@@ -245,7 +245,7 @@ EnergyMap.prototype = {
 			self.selectedColor = self.preHighlightColor;
 		else
 			self.selectedColor = layer.options.color; 
-
+  
 		self.selectedLayer.setStyle({ 
 			weight: 5, 
 			color: 'black', 
@@ -280,10 +280,11 @@ EnergyMap.prototype = {
 
 		if (layer != self.selectedLayer){
 			self.preHighlightColor = layer.options.color;
+			let style = self.setGeoJSONStyle(layer.feature);
 			layer.setStyle({
 				weight: 2,
 				color: 'black',
-				fillColor: self.preHighlightColor, 
+				fillColor: style.color,
 				dashArray: '5,5'
 			});
 
@@ -307,11 +308,12 @@ EnergyMap.prototype = {
 		}
 
 		if (self.selectedLayer){
+			let style = self.setGeoJSONStyle(selectedLayer.feature);
 			self.selectedLayer.setStyle({ 
 				weight: 5, 
 				color: 'black', 
 				dashArray: '',
-				fillColor: self.selectedColor
+				fillColor: style.color
 			});
 
 			if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge)

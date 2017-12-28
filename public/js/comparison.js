@@ -14,6 +14,7 @@ function Comparison(controller, container_electricity, container_gas) {
 	this.colors = ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3"];
 
 	this.showing = "COMMUNITY_AREAS";
+	this.display = "energy";
 }
 
 Comparison.prototype = {
@@ -123,14 +124,16 @@ Comparison.prototype = {
 				this.buildList();
 		}
 
+		this.update();
+		/*
 		this.linechart_electricity.data.splice(pos, 1);
 		this.linechart_electricity.init();
 		this.linechart_gas.data.splice(pos, 1);
 		this.linechart_gas.init();
-		
+		*/
 	},
 
-	add: function(id, name, electricity, gas, type, community_name) {
+	add: function(id, name, electricity, gas, type, community_name, area_electricity, area_gas, population) {
 
 		let self = this;
 		let exists = false;
@@ -141,7 +144,10 @@ Comparison.prototype = {
 				electricity: electricity,
 				gas: gas,
 				belongs_to: community_name,
-				initials: null
+				initials: null,
+				area_electricity: area_electricity,
+				area_gas: area_gas,
+				population: population
 			};
 		if (community.belongs_to != null && community.belongs_to != undefined)
 			community.initials = Array.prototype.map.call(community_name.split(" "), function(x){ return x.substring(0,1).toUpperCase();}).join('');
@@ -167,9 +173,11 @@ Comparison.prototype = {
 				self.init(community.id, community.electricity, community.gas);
 				self.empty = false;
 			} else {
-				this.linechart_electricity.addDataItem(community.id, community.electricity);
-				this.linechart_gas.addDataItem(community.id, community.gas);
+				this.linechart_electricity.addDataItem(community.id, community.electricity, community.area_electricity, community.population);
+				this.linechart_gas.addDataItem(community.id, community.gas, community.area_gas, community.population);
 
+				this.linechart_electricity.display = self.display;
+				this.linechart_gas.display = self.display;
 				this.linechart_electricity.init();
 				this.linechart_gas.init();
 			}
@@ -207,10 +215,12 @@ Comparison.prototype = {
 		this.linechart_gas.data = [];
 
 		for (let i = 0; i < data.length; i++){
-			this.linechart_electricity.addDataItem(data[i].id, data[i].electricity);
-			this.linechart_gas.addDataItem(data[i].id, data[i].gas);
+			this.linechart_electricity.addDataItem(data[i].id, data[i].electricity, data[i].area_electricity, data[i].population);
+			this.linechart_gas.addDataItem(data[i].id, data[i].gas, data[i].area_gas, data[i].population);
 		}
 
+		this.linechart_electricity.display = this.display;
+		this.linechart_gas.display = this.display;
 		this.linechart_electricity.init();
 		this.linechart_gas.init();
 		this.buildList();

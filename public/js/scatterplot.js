@@ -438,13 +438,21 @@ ScatterPlot.prototype = {
 
     addSelectedElementStyle: function(id, sender) {
 
+        d3.selection.prototype.moveToFront = function() {
+          return this.each(function(){
+            this.parentNode.appendChild(this);
+          });
+        };
+
         if (this.level == "COMMUNITY_AREAS" && sender == "COMMUNITY_AREAS"){
             d3.select(".dot_selected").classed("dot_selected", false);
             d3.select("." + id.replace(/\s+/g, "")).classed("dot_selected", true);
+            d3.select("." + id.replace(/\s+/g, "")).moveToFront();
         } else if ((this.level == "CENSUS_BLOCKS" && sender == "CENSUS_BLOCKS") ||
                     (this.level == "CENSUS_TRACTS" && sender == "CENSUS_TRACTS")){
             d3.select(".dot_selected").classed("dot_selected", false);
             d3.select(".geo" + id).classed("dot_selected", true);
+            d3.select(".geo" + id).moveToFront();
         }
     },
 

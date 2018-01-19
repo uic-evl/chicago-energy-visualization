@@ -238,13 +238,16 @@ EnergyMap.prototype = {
 		let self = this;
 		if (self.selectedLayer)
 			self.geoJsonLayer.resetStyle(self.selectedLayer);
+
 		self.selectedLayer = layer;
 		self.geoJsonLayer.resetStyle(layer);
 
+		/*
 		if (self.preHighlightColor)
 			self.selectedColor = self.preHighlightColor;
 		else
-			self.selectedColor = layer.options.color; 
+			self.selectedColor = layer.options.color;*/ 
+		self.selectedColor = layer.options.color; 
   
 		self.selectedLayer.setStyle({ 
 			weight: 5, 
@@ -308,7 +311,7 @@ EnergyMap.prototype = {
 		}
 
 		if (self.selectedLayer){
-			let style = self.setGeoJSONStyle(selectedLayer.feature);
+			let style = self.setGeoJSONStyle(self.selectedLayer.feature);
 			self.selectedLayer.setStyle({ 
 				weight: 5, 
 				color: 'black', 
@@ -403,6 +406,7 @@ EnergyMap.prototype = {
 
 	loadCensusTracts: function(id) {
 		
+		this.selectedLayer = null;
 		if (this.geoJsonLayer != null) this.clear();
 		this.controller.getCensusTractsGeoData(id)
 			.then((data)=>{ this.addData2(data); });
@@ -411,6 +415,7 @@ EnergyMap.prototype = {
 
 	loadCensusBlock: function(community_id) {
 		
+		this.selectedLayer = null;
 		if (this.geoJsonLayer != null) this.clear();
 		this.controller.getCensusBlockGeoData(community_id)
 			.then((data) => { 

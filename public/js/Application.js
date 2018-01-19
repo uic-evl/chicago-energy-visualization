@@ -84,7 +84,8 @@ App.prototype = {
 				let community_name = $("#selected-community-name").text();
 				let area1 = this.map.selectedLayer.feature.properties.AREA_ELECTRICITY;
 				let area2 = this.map.selectedLayer.feature.properties.AREA_GAS;
-				this.comparison.add(data.ID, data.NAME, data.electricity, data.gas, type, community_name, area1, area2, data.TOTAL_POPULATION);
+				let population = this.map.selectedLayer.feature.properties.POPULATION;
+				this.comparison.add(data.ID, data.NAME, data.electricity, data.gas, type, community_name, area1, area2, population);
 			});
 		}
 
